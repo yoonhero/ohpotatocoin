@@ -2,18 +2,18 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/yoonhero/ohpotatocoin/blockchain"
+	"log"
+	"net/http"
 )
 
+const port string = ":4000"
+
+func home(rw http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(rw, "Hello from home")
+}
+
 func main() {
-	chain := blockchain.GetBlockchain()
-	chain.AddBlock("Second Block")
-	chain.AddBlock("Third Block")
-	chain.AllBlocks()
-	for _, block := range chain.AllBlocks() {
-		fmt.Printf("Data: %s\n", block.Data)
-		fmt.Printf("Hash: %s\n", block.Hash)
-		fmt.Printf("PrevHash: %s\n", block.PrevHash)
-	}
+	http.HandleFunc("/", home)
+	fmt.Printf("Listening on http://localhost%s\n", port)
+	log.Fatal(http.ListenAndServe(port, nil))
 }
