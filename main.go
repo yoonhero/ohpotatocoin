@@ -3,7 +3,8 @@ package main
 import "fmt"
 
 func main() {
-	x := 32934239424
-	xAsBinary := fmt.Sprintf("%b\n", x)
-	fmt.Println(x, xAsBinary)
+	foods := [3]string{"potato", "pizza", "pasta"}
+	for _, dish := range foods {
+		fmt.Println(dish)
+	}
 }
