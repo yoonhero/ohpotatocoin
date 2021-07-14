@@ -1,7 +1,12 @@
 package main
 
-import "github.com/yoonhero/ohpotatocoin/blockchain"
+import (
+	"fmt"
+
+	"github.com/yoonhero/ohpotatocoin/blockchain"
+)
 
 func main() {
 	chain := blockchain.GetBlockchain()
+	fmt.Println(chain)
 }
