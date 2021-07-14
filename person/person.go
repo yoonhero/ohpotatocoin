@@ -9,3 +9,7 @@ func (p *Person) SetDetails(name string, age int) {
 	p.name = name
 	p.age = age
 }
+
+func (p Person) Name() string {
+	return p.name
+}
