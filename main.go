@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
 const port string = ":5000"
 
+//`json:"name"` => return name not Name
+//'json:"omitempty"` => don't send if field is empty
 type URLDescription struct {
-	URL         string
-	Method      string
-	Description string
+	URL         string `json:"url"`
+	Method      string `json:"method"`
+	Description string `json:"description"`
+	Payload     string `json:"payload,omitempty"`
 }
 
 func documentation(rw http.ResponseWriter, r *http.Request) {
@@ -24,10 +25,15 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Method:      "GET",
 			Description: "See Documentation",
 		},
+		{
+			URL:         "/blocks",
+			Method:      "POST",
+			Description: "Add A Block",
+			Payload:     "data:string",
+		},
 	}
-	b, err := json.Marshal(data)
-	utils.HandleErr(err)
-	fmt.Printf("%s\n", b)
+	rw.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(rw).Encode(data)
 }
 
 func main() {
