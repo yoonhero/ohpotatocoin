@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/yoonhero/ohpotatocoin/blockchain"
 )
 
@@ -78,7 +79,7 @@ func add(rw http.ResponseWriter, r *http.Request) {
 func Start(port int) {
 	// use NewServeMux() to fix the err
 	// which occurs when we try to run various http server
-	handler := http.NewServeMux()
+	router := mux.NewRouter()
 
 	// Must is a helper that wraps a call to a function returning (*Template, error)
 	// ParseGlob creates a new Template and parses the template definitions from the files identified by the pattern.
@@ -86,12 +87,12 @@ func Start(port int) {
 	templates = template.Must(templates.ParseGlob(templateDir + "partials/*.gohtml"))
 
 	// if url is "/"
-	handler.HandleFunc("/", home)
+	router.HandleFunc("/", home)
 
 	// if url is "/add"
-	handler.HandleFunc("/add", add)
+	router.HandleFunc("/add", add)
 
 	fmt.Printf("Listening on http://localhost:%d\n", port)
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handler))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), router))
 }
