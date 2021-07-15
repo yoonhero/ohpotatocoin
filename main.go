@@ -10,28 +10,43 @@ import (
 // constant post string
 const port string = ":5000"
 
+// new type URL
+type URL string
+
+// type URL's interface
+func (u URL) MarshalText() ([]byte, error) {
+	// var url is http://localhost + port + URL
+	url := fmt.Sprintf("http://localhost%s%s", port, u)
+	return []byte(url), nil
+}
+
 //`json:"name"` => return name not Name
 //'json:"omitempty"` => don't send if field is empty
 // url, method, description, payload in type URLDescription struct
 type URLDescription struct {
-	URL         string `json:"url"`
+	URL         URL    `json:"url"`
 	Method      string `json:"method"`
 	Description string `json:"description"`
 	Payload     string `json:"payload,omitempty"`
 }
 
-// when link is "/"
+// URLDescription all string to return valueㄴ
+// func (u URLDescription) String() string {
+// 	return "Hello I'm the URL Description"
+// }
+
+// when url is "/"
 func documentation(rw http.ResponseWriter, r *http.Request) {
 
 	// []URLDescription struct slice
 	data := []URLDescription{
 		{
-			URL:         "/",
+			URL:         URL("/"),
 			Method:      "GET",
 			Description: "See Documentation",
 		},
 		{
-			URL:         "http://localhost:4000/blocks",
+			URL:         URL("/blocks"),
 			Method:      "POST",
 			Description: "Add A Block",
 			Payload:     "data:string",
