@@ -76,8 +76,7 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 		},
 	}
 	// add content json type
-
-	rw.Header().Add("Content-Type", "application/json")
+	// rw.Header().Add("Content-Type", "application/json")
 
 	// json.NewEncoder(rw).Encode(data)
 	// is same
@@ -92,7 +91,7 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 	// when GET
 	case "GET":
 		// recognize that this content is json
-		rw.Header().Add("Content-Type", "application/json")
+		// rw.Header().Add("Content-Type", "application/json")
 
 		// send all blocks
 		json.NewEncoder(rw).Encode(blockchain.GetBlockchain().AllBlocks())
@@ -147,10 +146,23 @@ func block(rw http.ResponseWriter, r *http.Request) {
 
 }
 
+// func add json content type
+func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
+	// make a type of http.Handler
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		// add content json type
+		rw.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(rw, r)
+	})
+}
+
 func Start(aPort int) {
 	// use NewServeMux() to fix the err
 	// which occurs when we try to run various http server
 	router := mux.NewRouter()
+
+	// add json content type
+	router.Use(jsonContentTypeMiddleWare)
 
 	port = fmt.Sprintf(":%d", aPort)
 	// when  get or post "/" url
