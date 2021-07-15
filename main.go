@@ -30,7 +30,7 @@ type URLDescription struct {
 	Payload     string `json:"payload,omitempty"`
 }
 
-// URLDescription all string to return valueㄴ
+// URLDescription all string to return value
 // func (u URLDescription) String() string {
 // 	return "Hello I'm the URL Description"
 // }
