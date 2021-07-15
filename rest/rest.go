@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/yoonhero/ohpotatocoin/blockchain"
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
@@ -107,22 +108,38 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 		// send a 201 sign
 		rw.WriteHeader(http.StatusCreated)
 	}
+
+}
+
+func block(rw http.ResponseWriter, r *http.Request) {
+	// get mux var from http.Request
+	// shape looks like
+	// map[id:1]
+	vars := mux.Vars(r)
+
+	// get only id
+	id := vars["id"]
+
+	fmt.Println(id)
 }
 
 func Start(aPort int) {
 	// use NewServeMux() to fix the err
 	// which occurs when we try to run various http server
-	handler := http.NewServeMux()
+	router := mux.NewRouter()
 
 	port = fmt.Sprintf(":%d", aPort)
 	// when  get or post "/" url
-	handler.HandleFunc("/", documentation)
+	router.HandleFunc("/", documentation).Methods("GET")
 
 	// when get or post "/blocks" url
-	handler.HandleFunc("/blocks", blocks)
+	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
+
+	// get parameter using mux
+	router.HandleFunc("/blocks/{id:[0-9]+}", block).Methods("GET")
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
 	// print if err exist
-	log.Fatal(http.ListenAndServe(port, handler))
+	log.Fatal(http.ListenAndServe(port, router))
 }
