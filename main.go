@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 )
@@ -16,10 +17,18 @@ func usage() {
 }
 
 func main() {
+
 	// if don't type like rest or explorer
 	if len(os.Args) < 2 {
 		usage()
 	}
+
+	// variable flag set
+	rest := flag.NewFlagSet("rest", flag.ExitOnError)
+
+	// variable which change -port to int var
+	// if err occus -> "Sets the port of the server"
+	portFlag := rest.Int("port", 4000, "Sets the port of the server")
 
 	switch os.Args[1] {
 	// if os.Args[1] == 'explorer'
@@ -28,8 +37,15 @@ func main() {
 
 	// if os.Args[1] == "rest"
 	case "rest":
-		fmt.Println("Start REST API")
+		rest.Parse(os.Args[2:])
+
 	default:
 		usage()
+	}
+
+	// if parsed(boolean)
+	if rest.Parsed() {
+		fmt.Println(*portFlag)
+		fmt.Println("Start server")
 	}
 }
