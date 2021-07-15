@@ -14,7 +14,6 @@ import (
 // templateDir is directory of templates
 
 const (
-	port        string = ":4000"
 	templateDir string = "explorer/templates/"
 )
 
@@ -76,19 +75,23 @@ func add(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Start() {
+func Start(port int) {
+	// use NewServeMux() to fix the err
+	// which occurs when we try to run various http server
+	handler := http.NewServeMux()
+
 	// Must is a helper that wraps a call to a function returning (*Template, error)
 	// ParseGlob creates a new Template and parses the template definitions from the files identified by the pattern.
 	templates = template.Must(template.ParseGlob(templateDir + "pages/*.gohtml"))
 	templates = template.Must(templates.ParseGlob(templateDir + "partials/*.gohtml"))
 
 	// if url is "/"
-	http.HandleFunc("/", home)
+	handler.HandleFunc("/", home)
 
 	// if url is "/add"
-	http.HandleFunc("/add", add)
+	handler.HandleFunc("/add", add)
 
-	fmt.Printf("Listening on http://localhost%s\n", port)
+	fmt.Printf("Listening on http://localhost:%d\n", port)
 
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handler))
 }
