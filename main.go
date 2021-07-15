@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/yoonhero/ohpotatocoin/blockchain"
+	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
 // constant post string
@@ -35,6 +38,14 @@ type URLDescription struct {
 // 	return "Hello I'm the URL Description"
 // }
 
+// Addblockbody struct
+// which used when post a data
+// data looks like
+// {"message": "data"}
+type AddBlockBody struct {
+	Message string
+}
+
 // when url is "/"
 func documentation(rw http.ResponseWriter, r *http.Request) {
 
@@ -51,6 +62,12 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Description: "Add A Block",
 			Payload:     "data:string",
 		},
+		{
+			URL:         URL("/blocks/{id]"),
+			Method:      "Get",
+			Description: "See A Block",
+			Payload:     "data:string",
+		},
 	}
 	// add content json type
 
@@ -63,9 +80,41 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(rw).Encode(data)
 }
 
+// when get or post url /blocks
+func blocks(rw http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	// when GET
+	case "GET":
+		// recognize that this content is json
+		rw.Header().Add("Content-Type", "application/json")
+
+		// send all blocks
+		json.NewEncoder(rw).Encode(blockchain.GetBlockchain().AllBlocks())
+
+		// when POST
+	case "POST":
+		// {"message":"myblockdata"}
+
+		// new variable struct AddBlockBody
+		var addBlockBody AddBlockBody
+
+		// send pointers and set variable a posted data
+		utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
+
+		// add block whose data is addBlockBody.Message
+		blockchain.GetBlockchain().AddBlock(addBlockBody.Message)
+
+		// send a 201 sign
+		rw.WriteHeader(http.StatusCreated)
+	}
+}
+
 func main() {
-	// when "/" link get or post
+	// when  get or post "/" url
 	http.HandleFunc("/", documentation)
+
+	// when get or post "/blocks" url
+	http.HandleFunc("/blocks", blocks)
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
