@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/yoonhero/ohpotatocoin/blockchain"
@@ -64,7 +65,7 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Payload:     "data:string",
 		},
 		{
-			URL:         url("/blocks/{id]"),
+			URL:         url("/blocks/{height]"),
 			Method:      "Get",
 			Description: "See A Block",
 			Payload:     "data:string",
@@ -118,9 +119,19 @@ func block(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// get only id
-	id := vars["id"]
+	// id := vars["height"]
 
-	fmt.Println(id)
+	// strconv.Atoi convert string to int
+	id, err := strconv.Atoi(vars["height"])
+
+	// handle err
+	utils.HandleErr(err)
+
+	// GetBlock by id
+	block := blockchain.GetBlockchain().GetBlock(id)
+
+	// send the block
+	json.NewEncoder(rw).Encode(block)
 }
 
 func Start(aPort int) {
@@ -136,7 +147,7 @@ func Start(aPort int) {
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
 
 	// get parameter using mux
-	router.HandleFunc("/blocks/{id:[0-9]+}", block).Methods("GET")
+	router.HandleFunc("/blocks/{height:[0-9]+}", block).Methods("GET")
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
 

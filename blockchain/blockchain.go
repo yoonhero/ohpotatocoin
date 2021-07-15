@@ -10,10 +10,12 @@ import (
 // data is data for block
 // hash is sha256.Sum256([]byte(Data+PrevHash))
 // prevHash is previous block's hash
+// Height is id of block
 type Block struct {
-	Data     string
-	Hash     string
-	PrevHash string
+	Data     string `json:"data"`
+	Hash     string `json:"hash"`
+	PrevHash string `json:"prevHash,omitempty"`
+	Height   int    `json:"height"`
 }
 
 // type blockchain
@@ -53,7 +55,7 @@ func getLastHash() string {
 func createBlock(data string) *Block {
 	// variable newBlock
 	// {data:data, hash:"", prevHash: getLastHash()}
-	newBlock := Block{data, "", getLastHash()}
+	newBlock := Block{data, "", getLastHash(), len(GetBlockchain().blocks) + 1}
 	// newblock calculate hash
 	newBlock.calculateHash()
 
@@ -84,4 +86,9 @@ func GetBlockchain() *blockchain {
 func (b *blockchain) AllBlocks() []*Block {
 	// return all blocks
 	return GetBlockchain().blocks
+}
+
+// find block by height (id)
+func (b *blockchain) GetBlock(height int) *Block {
+	return b.blocks[height-1]
 }
