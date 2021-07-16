@@ -34,7 +34,7 @@ func home(rw http.ResponseWriter, r *http.Request) {
 	// set data
 	// pagetitle is "Home"
 	// Blocks is blockchain's allblocks
-	data := homeData{"Home", blockchain.GetBlockchain().AllBlocks()}
+	data := homeData{"Home", nil}
 
 	// execute
 	// writer is http.ResponseWrite
@@ -65,7 +65,7 @@ func add(rw http.ResponseWriter, r *http.Request) {
 		data := r.Form.Get("blockData")
 
 		// addblock data is data from r.Form.Get("blockchain")
-		blockchain.GetBlockchain().AddBlock(data)
+		blockchain.Blockchain().AddBlock(data)
 
 		// redirect http
 		// writer is http.ResponseWrite

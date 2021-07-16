@@ -1,7 +1,9 @@
 package main
 
-import "github.com/yoonhero/ohpotatocoin/blockchain"
+import (
+	"github.com/yoonhero/ohpotatocoin/cli"
+)
 
 func main() {
-	blockchain.Blockchain()
+	cli.Start()
 }

@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/yoonhero/ohpotatocoin/blockchain"
-	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
 // variable post string
@@ -69,7 +67,7 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Payload:     "data:string",
 		},
 		{
-			URL:         url("/blocks/{height]"),
+			URL:         url("/blocks/{hash]"),
 			Method:      "Get",
 			Description: "See A Block",
 			Payload:     "data:string",
@@ -90,27 +88,29 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	// when GET
 	case "GET":
+		return
 		// recognize that this content is json
 		// rw.Header().Add("Content-Type", "application/json")
 
 		// send all blocks
-		json.NewEncoder(rw).Encode(blockchain.GetBlockchain().AllBlocks())
+		// json.NewEncoder(rw).Encode(blockchain.GetBlockchain().AllBlocks())
 
 		// when POST
 	case "POST":
+		return
 		// {"message":"myblockdata"}
 
-		// new variable struct AddBlockBody
-		var addBlockBody addBlockBody
+		// // new variable struct AddBlockBody
+		// var addBlockBody addBlockBody
 
-		// send pointers and set variable a posted data
-		utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
+		// // send pointers and set variable a posted data
+		// utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
 
-		// add block whose data is addBlockBody.Message
-		blockchain.GetBlockchain().AddBlock(addBlockBody.Message)
+		// // add block whose data is addBlockBody.Message
+		// blockchain.GetBlockchain().AddBlock(addBlockBody.Message)
 
-		// send a 201 sign
-		rw.WriteHeader(http.StatusCreated)
+		// // send a 201 sign
+		// rw.WriteHeader(http.StatusCreated)
 	}
 
 }
@@ -125,13 +125,13 @@ func block(rw http.ResponseWriter, r *http.Request) {
 	// id := vars["height"]
 
 	// strconv.Atoi convert string to int
-	id, err := strconv.Atoi(vars["height"])
+	hash := vars["hash"]
 
 	// handle err
-	utils.HandleErr(err)
+	// utils.HandleErr(err)
 
-	// GetBlock by id
-	block, err := blockchain.GetBlockchain().GetBlock(id)
+	// FindBlock by id
+	block, err := blockchain.FindBlock(hash)
 
 	encoder := json.NewEncoder(rw)
 
@@ -172,7 +172,7 @@ func Start(aPort int) {
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
 
 	// get parameter using mux
-	router.HandleFunc("/blocks/{height:[0-9]+}", block).Methods("GET")
+	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET")
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
