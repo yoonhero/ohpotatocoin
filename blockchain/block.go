@@ -75,16 +75,17 @@ func (b *Block) mine() {
 func createBlock(prevHash string, height int) *Block {
 	block := &Block{
 
-		Hash:         "",
-		PrevHash:     prevHash,
-		Height:       height,
-		Difficulty:   Blockchain().difficulty(),
-		Nonce:        0,
-		Transactions: []*Tx{makeCoinbaseTx("yoonhero")},
+		Hash:       "",
+		PrevHash:   prevHash,
+		Height:     height,
+		Difficulty: Blockchain().difficulty(),
+		Nonce:      0,
 	}
 
 	// mining the block
 	block.mine()
+
+	block.Transactions = Mempool.TxToConfirm()
 
 	// persist the block
 	block.persist()

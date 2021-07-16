@@ -1,0 +1,14 @@
+Tx1 
+  TxIns[COINBASE]
+  TxOuts[&5(you)] <---- Spent TxOut 
+
+
+Tx2 
+  TxIns[Tx1.TxOuts[0]]
+  TxOuts[$5(me)] <---- Spent TxOut 
+
+Tx3
+  TxIns[Tx2.TxOuts[0]]
+  TxOuts[$3(you), $2(me)] <---- uTxOut * 2
+
+
