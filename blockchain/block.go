@@ -4,10 +4,13 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/yoonhero/ohpotatocoin/db"
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
+
+const difficulty int = 2
 
 // type block
 // data is data for block
@@ -52,18 +55,34 @@ func FindBlock(hash string) (*Block, error) {
 	return block, nil
 }
 
+func (b *Block) mine() {
+	target := strings.Repeat("0", b.Difficulty)
+	for {
+		blockAsString := fmt.Sprint(b)
+		hash := fmt.Sprintf("%x", sha256.Sum256([]byte(blockAsString)))
+		fmt.Printf("Block as String:%s\nHash:%s\nTarget:%s\nNonce:%d\n\n\n", blockAsString, hash, target, b.Nonce)
+		if strings.HasPrefix(hash, target) {
+			b.Hash = hash
+			break
+		} else {
+			b.Nonce++
+		}
+	}
+}
+
 // create block
 func createBlock(data string, prevHash string, height int) *Block {
 	block := &Block{
-		Data:     data,
-		Hash:     "",
-		PrevHash: prevHash,
-		Height:   height,
+		Data:       data,
+		Hash:       "",
+		PrevHash:   prevHash,
+		Height:     height,
+		Difficulty: difficulty,
+		Nonce:      0,
 	}
-	payload := block.Data + block.PrevHash + fmt.Sprint(block.Height)
 
-	// hashing the payload
-	block.Hash = fmt.Sprintf("%x", sha256.Sum256([]byte(payload)))
+	// mining the block
+	block.mine()
 
 	// persist the block
 	block.persist()
