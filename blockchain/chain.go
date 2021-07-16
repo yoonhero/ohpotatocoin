@@ -11,11 +11,17 @@ import (
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
+const (
+	defaultDifficulty  int = 2
+	difficultyInterval int = 5
+)
+
 // type blockchain
 // blocks is slice of []Block
 type blockchain struct {
-	NewestHash string `json:"newestHash"`
-	Height     int    `json:"height"`
+	NewestHash        string `json:"newestHash"`
+	Height            int    `json:"height"`
+	CurrentDifficulty int    `json:"currentDifficulty`
 }
 
 // variable blockchain pointers
@@ -68,6 +74,17 @@ func (b *blockchain) Blocks() []*Block {
 	return blocks
 }
 
+func (b *blockchain) difficulty() int {
+	if b.Height == 0 {
+		return defaultDifficulty
+	} else if b.Height%difficultyInterval == 0 {
+		// recalculate the difficulty
+		return b.CurrentDifficulty
+	} else {
+		return b.CurrentDifficulty
+	}
+}
+
 func Blockchain() *blockchain {
 	// if var blockchain is nil
 	// add first block
@@ -75,7 +92,7 @@ func Blockchain() *blockchain {
 		// do only once a time
 		once.Do(func() {
 			// initial blockchain struct
-			b = &blockchain{"", 0}
+			b = &blockchain{Height: 0}
 
 			// search for checkpoint on the db
 			checkpoint := db.Checkpoint()
