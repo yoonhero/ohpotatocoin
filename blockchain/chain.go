@@ -30,20 +30,31 @@ func (b *blockchain) restore(data []byte) {
 	utils.FromBytes(b, data)
 }
 
+// persist the blockchain data
 func (b *blockchain) persist() {
-	db.SaveBlockchain(utils.ToBytes(b))
+	db.SaveCheckpoint(utils.ToBytes(b))
 }
 
+// add block to blockchain
 func (b *blockchain) AddBlock(data string) {
+	// createBlock
 	block := createBlock(data, b.NewestHash, b.Height+1)
+
+	// set newesthash new block's hash
 	b.NewestHash = block.Hash
+	// set height new block's height
 	b.Height = block.Height
+
+	// persist the blockchain
 	b.persist()
 }
 
+// return all blocks
 func (b *blockchain) Blocks() []*Block {
 	var blocks []*Block
 
+	// start newesthash and its prevhash and find block
+	// if prevhash dont exist = genesis block break
 	hashCursor := b.NewestHash
 	for {
 		block, _ := FindBlock(hashCursor)
@@ -63,13 +74,17 @@ func Blockchain() *blockchain {
 	if b == nil {
 		// do only once a time
 		once.Do(func() {
+			// initial blockchain struct
 			b = &blockchain{"", 0}
+
 			// search for checkpoint on the db
 			checkpoint := db.Checkpoint()
+
 			if checkpoint == nil {
+				// if blockchain don't exist create block
 				b.AddBlock("Genesis")
 			} else {
-				// restore b from bytes
+				// restore data from db
 				b.restore(checkpoint)
 			}
 		})

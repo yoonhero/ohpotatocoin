@@ -14,6 +14,7 @@ func HandleErr(err error) {
 	}
 }
 
+// inteface -> byte slice
 func ToBytes(i interface{}) []byte {
 	var aBuffer bytes.Buffer
 	encoder := gob.NewEncoder(&aBuffer)
@@ -21,6 +22,7 @@ func ToBytes(i interface{}) []byte {
 	return aBuffer.Bytes()
 }
 
+// set interface data (byte) -> decoded data
 func FromBytes(i interface{}, data []byte) {
 	encoder := gob.NewDecoder(bytes.NewReader(data))
 	HandleErr(encoder.Decode(i))
