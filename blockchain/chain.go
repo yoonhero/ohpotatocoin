@@ -6,6 +6,9 @@ package blockchain
 
 import (
 	"sync"
+
+	"github.com/yoonhero/ohpotatocoin/db"
+	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
 // type blockchain
@@ -21,10 +24,15 @@ var b *blockchain
 // variable struct that play func only one time
 var once sync.Once
 
+func (b *blockchain) persist() {
+	db.SaveBlockchain(utils.ToBytes(b))
+}
+
 func (b *blockchain) AddBlock(data string) {
-	block := createBlock(data, b.NewestHash, b.Height)
+	block := createBlock(data, b.NewestHash, b.Height+1)
 	b.NewestHash = block.Hash
 	b.Height = block.Height
+	b.persist()
 }
 
 func Blockchain() *blockchain {
