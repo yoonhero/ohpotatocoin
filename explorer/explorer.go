@@ -57,15 +57,15 @@ func add(rw http.ResponseWriter, r *http.Request) {
 
 		// if r.Method is "POST"
 	case "POST":
-		// parses the raw query from URL
-		// updates r.Form
-		r.ParseForm()
+		// // parses the raw query from URL
+		// // updates r.Form
+		// r.ParseForm()
 
-		// get form input named blockData
-		data := r.Form.Get("blockData")
+		// // get form input named blockData
+		// data := r.Form.Get("blockData")
 
 		// addblock data is data from r.Form.Get("blockchain")
-		blockchain.Blockchain().AddBlock(data)
+		blockchain.Blockchain().AddBlock()
 
 		// redirect http
 		// writer is http.ResponseWrite

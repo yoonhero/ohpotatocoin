@@ -8,7 +8,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/yoonhero/ohpotatocoin/blockchain"
-	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
 // variable post string
@@ -39,13 +38,13 @@ type urlDescription struct {
 // 	return "Hello I'm the URL Description"
 // }
 
-// Addblockbody struct
-// which used when post a data
-// data looks like
-// {"message": "data"}
-type addBlockBody struct {
-	Message string `json:"message"`
-}
+// // Addblockbody struct
+// // which used when post a data
+// // data looks like
+// // {"message": "data"}
+// type addBlockBody struct {
+// 	Message string `json:"message"`
+// }
 
 type errorResponse struct {
 	ErrorMessage string `json:"errorMessage"`
@@ -104,14 +103,14 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 	case "POST":
 		// {"message":"myblockdata"}
 
-		// new variable struct AddBlockBody
-		var addBlockBody addBlockBody
+		// // new variable struct AddBlockBody
+		// var addBlockBody addBlockBody
 
-		// send pointers and set variable a posted data
-		utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
+		// // send pointers and set variable a posted data
+		// utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
 
 		// add block whose data is addBlockBody.Message
-		blockchain.Blockchain().AddBlock(addBlockBody.Message)
+		blockchain.Blockchain().AddBlock()
 
 		// send a 201 sign
 		rw.WriteHeader(http.StatusCreated)
