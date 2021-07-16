@@ -103,30 +103,31 @@ func (b *blockchain) difficulty() int {
 	}
 }
 
-func (b *blockchain) txOuts() []*TxOut {
-	var txOuts []*TxOut
-	blocks := b.Blocks()
-	for _, block := range blocks {
+// unspend transactoin out by address
+func (b *blockchain) UTxOutsByAddress(address string) []*UTxOut {
+	var uTxOuts []*UTxOut
+	creatorTxs := make(map[string]bool)
+	for _, block := range b.Blocks() {
 		for _, tx := range block.Transactions {
-			txOuts = append(txOuts, tx.TxOuts...)
+			for _, input := range tx.TxIns {
+				if input.Owner == address {
+					creatorTxs[input.TxID] = true
+				}
+			}
+			for index, output := range tx.TxOuts {
+				if output.Owner == address {
+					if _, ok := creatorTxs[tx.ID]; !ok {
+						uTxOuts = append(uTxOuts, &UTxOut{tx.ID, index, output.Amount})
+					}
+				}
+			}
 		}
 	}
-	return txOuts
-}
-
-func (b *blockchain) TxOutsByAddress(address string) []*TxOut {
-	var ownedTxOuts []*TxOut
-	txOuts := b.txOuts()
-	for _, txOut := range txOuts {
-		if txOut.Owner == address {
-			ownedTxOuts = append(ownedTxOuts, txOut)
-		}
-	}
-	return ownedTxOuts
+	return uTxOuts
 }
 
 func (b *blockchain) BalancByAddress(address string) int {
-	txOuts := b.TxOutsByAddress(address)
+	txOuts := b.UTxOutsByAddress(address)
 	var amount int
 	for _, txOut := range txOuts {
 		amount += txOut.Amount
@@ -158,59 +159,3 @@ func Blockchain() *blockchain {
 	// return type blockchain struct
 	return b
 }
-
-// func (b *Block) calculateHash() {
-// 	// create hash
-// 	hash := sha256.Sum256([]byte(b.Data + b.PrevHash))
-
-// 	// change block hash by pointer
-// 	// Sprintf("%x", hash) is format hash
-// 	b.Hash = fmt.Sprintf("%x", hash)
-// }
-
-// func getLastHash() string {
-// 	// get len(blocks)
-// 	totalBlocks := len(GetBlockchain().blocks)
-// 	// if blocks are empty
-// 	// return nothing
-// 	if totalBlocks == 0 {
-// 		return ""
-// 	}
-
-// 	// or return last block
-// 	return GetBlockchain().blocks[totalBlocks-1].Hash
-// }
-
-// func createBlock(data string) *Block {
-// 	// variable newBlock
-// 	// {data:data, hash:"", prevHash: getLastHash()}
-// 	newBlock := Block{data, "", getLastHash(), len(GetBlockchain().blocks) + 1}
-// 	// newblock calculate hash
-// 	newBlock.calculateHash()
-
-// 	// return new block
-// 	return &newBlock
-// }
-
-// func (b *blockchain) AddBlock(data string) {
-// 	// add block to blockchain.blocks slice
-// 	b.blocks = append(b.blocks, createBlock(data))
-// }
-
-// func (b *blockchain) AllBlocks() []*Block {
-// 	// return all blocks
-// 	return GetBlockchain().blocks
-// }
-
-// // make new error
-// var ErrNotFound = errors.New("Block Not Found")
-
-// // find block by height (id)
-// func (b *blockchain) GetBlock(height int) (*Block, error) {
-// 	// if block not exist
-// 	if height > len(b.blocks) || height == 0 {
-// 		// return nil and error
-// 		return nil, ErrNotFound
-// 	}
-// 	return b.blocks[height-1], nil
-// }
