@@ -46,7 +46,7 @@ func (b *blockchain) persist() {
 // add block to blockchain
 func (b *blockchain) AddBlock(data string) {
 	// createBlock
-	block := createBlock(data, b.NewestHash, b.Height+1)
+	block := createBlock(b.NewestHash, b.Height+1)
 
 	// set newesthash new block's hash
 	b.NewestHash = block.Hash

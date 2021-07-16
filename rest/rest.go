@@ -62,6 +62,11 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Description: "See Documentation",
 		},
 		{
+			URL:         url("/status"),
+			Method:      "GET",
+			Description: "See the Status of the blockchain",
+		},
+		{
 			URL:         url("/blocks"),
 			Method:      "POST",
 			Description: "Add A Block",
@@ -155,6 +160,10 @@ func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
 	})
 }
 
+func status(rw http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(rw).Encode(blockchain.Blockchain())
+}
+
 func Start(aPort int) {
 	// use NewServeMux() to fix the err
 	// which occurs when we try to run various http server
@@ -166,6 +175,8 @@ func Start(aPort int) {
 	port = fmt.Sprintf(":%d", aPort)
 	// when  get or post "/" url
 	router.HandleFunc("/", documentation).Methods("GET")
+
+	router.HandleFunc("/status", status)
 
 	// when get or post "/blocks" url
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
