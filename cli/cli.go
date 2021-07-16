@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 	"strconv"
 
 	"github.com/yoonhero/ohpotatocoin/explorer"
@@ -48,7 +49,7 @@ func usage() {
 	fmt.Printf("-mode=rest:           Choose between 'html' or 'rest' \n\n")
 	// fmt.Printf("-port=3000 -port=4000:   if run both mode set int list")
 	// exit program not to occur err
-	os.Exit(0)
+	runtime.Goexit()
 }
 
 func Start() {
