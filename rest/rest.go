@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/yoonhero/ohpotatocoin/blockchain"
+	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
 // variable post string
@@ -46,6 +47,11 @@ type urlDescription struct {
 // 	Message string `json:"message"`
 // }
 
+type balanceResponse struct {
+	Address string `json:"address"`
+	Balance int    `json:"balance"`
+}
+
 type errorResponse struct {
 	ErrorMessage string `json:"errorMessage"`
 }
@@ -76,6 +82,11 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Method:      "Get",
 			Description: "See A Block",
 			Payload:     "data:string",
+		},
+		{
+			URL:         url("/balance/{address}"),
+			Method:      "GET",
+			Description: "Get TxOuts for an Address",
 		},
 	}
 	// add content json type
@@ -163,6 +174,19 @@ func status(rw http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(rw).Encode(blockchain.Blockchain())
 }
 
+func balance(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	address := vars["address"]
+	total := r.URL.Query().Get("total")
+	switch total {
+	case "true":
+		amount := blockchain.Blockchain().BalancByAddress(address)
+		json.NewEncoder(rw).Encode(balanceResponse{address, amount})
+	default:
+		utils.HandleErr(json.NewEncoder(rw).Encode(blockchain.Blockchain().TxOutsByAddress(address)))
+	}
+}
+
 func Start(aPort int) {
 	// use NewServeMux() to fix the err
 	// which occurs when we try to run various http server
@@ -182,6 +206,8 @@ func Start(aPort int) {
 
 	// get parameter using mux
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET")
+
+	router.HandleFunc("/balance/{address}", balance)
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
