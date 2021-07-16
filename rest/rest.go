@@ -187,6 +187,10 @@ func balance(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func mempool(rw http.ResponseWriter, r *http.Request) {
+	utils.HandleErr(json.NewEncoder(rw).Encode(blockchain.Mempool.Txs))
+}
+
 func Start(aPort int) {
 	// use NewServeMux() to fix the err
 	// which occurs when we try to run various http server
@@ -208,7 +212,7 @@ func Start(aPort int) {
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET")
 
 	router.HandleFunc("/balance/{address}", balance)
-
+	router.HandleFunc("/mempool", mempool)
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
 	// print if err exist
