@@ -10,3 +10,19 @@ Tx2
 Tx3
   TxIns[Tx2.TxOuts[0]]
   TxOuts[$3(you), $2(me)] <---- uTxOut * 2
+
+
+
+wallet 
+1) we hash the msg. 
+"i love you" -> hash(x) -> "hashed_message"
+
+2) generate key pair 
+Keypair (privateK, publicK) (save priv to a file)
+
+3) sign the hash 
+("hashed_message" + privateK) -> "signature"
+
+4) verify 
+
+("hashed_message" + "signature" + publicK) -> true / false 
