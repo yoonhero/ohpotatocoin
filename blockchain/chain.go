@@ -41,7 +41,7 @@ func (b *blockchain) restore(data []byte) {
 // add block to blockchain
 func (b *blockchain) AddBlock() {
 	// createBlock
-	block := createBlock(b.NewestHash, b.Height+1)
+	block := createBlock(b.NewestHash, b.Height+1, getDifficulty(b))
 
 	// set newesthash new block's hash
 	b.NewestHash = block.Hash
@@ -97,7 +97,7 @@ func recalculateDifficulty(b *blockchain) int {
 	return b.CurrentDifficulty
 }
 
-func difficulty(b *blockchain) int {
+func getDifficulty(b *blockchain) int {
 	// if genesis block or not
 	if b.Height == 0 {
 		return defaultDifficulty
