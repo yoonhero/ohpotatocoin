@@ -10,8 +10,6 @@ import (
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
-const difficulty int = 2
-
 // type block
 // data is data for block
 // hash is sha256.Sum256([]byte(Data+PrevHash))
@@ -77,7 +75,7 @@ func createBlock(prevHash string, height int) *Block {
 		Hash:       "",
 		PrevHash:   prevHash,
 		Height:     height,
-		Difficulty: Blockchain().difficulty(),
+		Difficulty: difficulty(Blockchain()),
 		Nonce:      0,
 	}
 
