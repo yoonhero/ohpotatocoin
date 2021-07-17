@@ -5,6 +5,7 @@
 package blockchain
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/yoonhero/ohpotatocoin/db"
@@ -78,21 +79,26 @@ func (b *blockchain) Blocks() []*Block {
 	return blocks
 }
 
+// recalculate difficulty of block by timestamp
 func (b *blockchain) recalculateDifficulty() int {
+	// get all blocks
 	allBlocks := b.Blocks()
 	newestBlock := allBlocks[0]
 	lastRecalculatedBlock := allBlocks[difficultyInterval-1]
 	actualTime := (newestBlock.Timestamp / 60) - (lastRecalculatedBlock.Timestamp / 60)
 	expectedTime := difficultyInterval * blockInterval
 	if actualTime <= (expectedTime - allowedRange) {
+		// if acuaultime < 8 difficulty + 1
 		return b.CurrentDifficulty + 1
 	} else if actualTime >= (expectedTime + allowedRange) {
+		// if actualtime >= 12 difficulty - 1
 		return b.CurrentDifficulty - 1
 	}
 	return b.CurrentDifficulty
 }
 
 func (b *blockchain) difficulty() int {
+	// if genesis block or not
 	if b.Height == 0 {
 		return defaultDifficulty
 	} else if b.Height%difficultyInterval == 0 {
@@ -103,18 +109,20 @@ func (b *blockchain) difficulty() int {
 	}
 }
 
-// unspend transactoin out by address
+// unspent transaction out by address
 func (b *blockchain) UTxOutsByAddress(address string) []*UTxOut {
 	var uTxOuts []*UTxOut
 	creatorTxs := make(map[string]bool)
 	for _, block := range b.Blocks() {
 		for _, tx := range block.Transactions {
 			for _, input := range tx.TxIns {
+				fmt.Println(input)
 				if input.Owner == address {
 					creatorTxs[input.TxID] = true
 				}
 			}
 			for index, output := range tx.TxOuts {
+				fmt.Println(output)
 				if output.Owner == address {
 					if _, ok := creatorTxs[tx.ID]; !ok {
 						uTxOuts = append(uTxOuts, &UTxOut{tx.ID, index, output.Amount})
@@ -123,9 +131,11 @@ func (b *blockchain) UTxOutsByAddress(address string) []*UTxOut {
 			}
 		}
 	}
+
 	return uTxOuts
 }
 
+// get balance
 func (b *blockchain) BalancByAddress(address string) int {
 	txOuts := b.UTxOutsByAddress(address)
 	var amount int
@@ -139,7 +149,7 @@ func Blockchain() *blockchain {
 	// if var blockchain is nil
 	// add first block
 	if b == nil {
-		// do only once a time
+		// run only one time
 		once.Do(func() {
 			// initial blockchain struct
 			b = &blockchain{Height: 0}

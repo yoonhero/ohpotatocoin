@@ -10,6 +10,3 @@ Tx2
 Tx3
   TxIns[Tx2.TxOuts[0]]
   TxOuts[$3(you), $2(me)] <---- uTxOut * 2
-
-
-

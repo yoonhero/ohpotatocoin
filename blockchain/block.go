@@ -61,9 +61,9 @@ func (b *Block) mine() {
 	for {
 		b.Timestamp = int(time.Now().Unix())
 		hash := utils.Hash(b)
-		fmt.Printf("Target:%s\nHash:%s\nNonce:%d\n\n\n", target, hash, b.Nonce)
 		if strings.HasPrefix(hash, target) {
 			b.Hash = hash
+			fmt.Printf("Target:%s\nHash:%s\nNonce:%d\n\n\n", target, hash, b.Nonce)
 			break
 		} else {
 			b.Nonce++
@@ -74,7 +74,6 @@ func (b *Block) mine() {
 // create block
 func createBlock(prevHash string, height int) *Block {
 	block := &Block{
-
 		Hash:       "",
 		PrevHash:   prevHash,
 		Height:     height,

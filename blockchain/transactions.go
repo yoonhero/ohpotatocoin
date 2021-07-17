@@ -11,12 +11,14 @@ const (
 	minerReward int = 50
 )
 
+// not confirmed transactions list
 type mempool struct {
 	Txs []*Tx
 }
 
 var Mempool *mempool = &mempool{}
 
+// transaction struct
 type Tx struct {
 	ID        string   `json:"id"`
 	Timestamp int      `json:"timestamp"`
@@ -24,27 +26,32 @@ type Tx struct {
 	TxOuts    []*TxOut `json:"txOuts"`
 }
 
+// hashing the transaction to get ID
 func (t *Tx) getId() {
 	t.ID = utils.Hash(t)
 }
 
+// transaction input value
 type TxIn struct {
 	TxID  string
 	Index int
 	Owner string `json:"owner"`
 }
 
+// transaction output value
 type TxOut struct {
 	Owner  string `json:"owner"`
 	Amount int    `json:"amount"`
 }
 
+// unspent transaction structure
 type UTxOut struct {
 	TxID   string
 	Index  int
 	Amount int
 }
 
+// give coin when mining
 func makeCoinbaseTx(address string) *Tx {
 	txIns := []*TxIn{
 		{"", -1, "COINBASE"},
@@ -63,6 +70,7 @@ func makeCoinbaseTx(address string) *Tx {
 	return &tx
 }
 
+// make transaction
 func makeTx(from, to string, amount int) (*Tx, error) {
 	if Blockchain().BalancByAddress(from) < amount {
 		return nil, errors.New("Not enough money")
@@ -95,6 +103,7 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	return tx, nil
 }
 
+// add transaction
 func (m *mempool) AddTx(to string, amount int) error {
 	tx, err := makeTx("yoonhero", to, amount)
 	if err != nil {
