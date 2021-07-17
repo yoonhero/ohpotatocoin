@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/yoonhero/ohpotatocoin/utils"
+	"github.com/yoonhero/ohpotatocoin/wallet"
 )
 
 const (
@@ -119,7 +120,7 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 
 // add transaction
 func (m *mempool) AddTx(to string, amount int) error {
-	tx, err := makeTx("yoonhero", to, amount)
+	tx, err := makeTx(wallet.Wallet().Address, to, amount)
 	if err != nil {
 		return err
 	}
@@ -128,7 +129,7 @@ func (m *mempool) AddTx(to string, amount int) error {
 }
 
 func (m *mempool) TxToConfirm() []*Tx {
-	coinbase := makeCoinbaseTx("yoonhero")
+	coinbase := makeCoinbaseTx(wallet.Wallet().Address)
 	txs := m.Txs
 	txs = append(txs, coinbase)
 	m.Txs = nil
