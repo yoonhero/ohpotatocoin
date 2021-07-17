@@ -27,22 +27,17 @@ type Tx struct {
 	TxOuts    []*TxOut `json:"txOuts"`
 }
 
-// hashing the transaction to get ID
-func (t *Tx) getId() {
-	t.ID = utils.Hash(t)
-}
-
 // transaction input value
 type TxIn struct {
-	TxID  string
-	Index int
-	Owner string `json:"owner"`
+	TxID      string `json:"txId"`
+	Index     int    `json:"index"`
+	Signature string `json:"signature"`
 }
 
 // transaction output value
 type TxOut struct {
-	Owner  string `json:"owner"`
-	Amount int    `json:"amount"`
+	Address string `json:"address"`
+	Amount  int    `json:"amount"`
 }
 
 // unspent transaction structure
@@ -52,8 +47,26 @@ type UTxOut struct {
 	Amount int    `json:"amount"`
 }
 
-func isOnMempool(uTxOut *UTxOut) bool {
-	exists := false
+// hashing the transaction to get ID
+func (t *Tx) getId() {
+	t.ID = utils.Hash(t)
+}
+
+func (t *Tx) sign() {
+	for _, txIn := range t.TxIns {
+		txIn.Signature = wallet.Sign(t.ID, wallet.Wallet())
+	}
+}
+
+func validate(tx *Tx) bool {
+	valid := true
+	for _, txIn := range tx.TxIns {
+		prevTx := FindTx(Blockchain(), txIn.TxID)
+	}
+	return valid
+}
+
+func isOnMempool(uTxOut *UTxOut) (exists bool) {
 Outer:
 	for _, tx := range Mempool.Txs {
 		for _, input := range tx.TxIns {
@@ -63,7 +76,7 @@ Outer:
 			}
 		}
 	}
-	return exists
+	return
 }
 
 // give coin when mining
@@ -115,6 +128,7 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 		TxOuts:    txOuts,
 	}
 	tx.getId()
+	tx.sign()
 	return tx, nil
 }
 

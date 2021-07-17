@@ -79,6 +79,44 @@ func persistBlockchain(b *blockchain) {
 	db.SaveCheckpoint(utils.ToBytes(b))
 }
 
+func Blockchain() *blockchain {
+	// run only one time
+	once.Do(func() {
+		// initial blockchain struct
+		b = &blockchain{Height: 0}
+
+		// search for checkpoint on the db
+		checkpoint := db.Checkpoint()
+
+		if checkpoint == nil {
+			// if blockchain don't exist create block
+			b.AddBlock()
+		} else {
+			// restore data from db
+			b.restore(checkpoint)
+		}
+	})
+	// return type blockchain struct
+	return b
+}
+
+func Txs(b *blockchain) []*Tx {
+	var txs []*Tx
+	for _, block := range Blocks(b) {
+		txs = append(txs, block.Transactions...)
+	}
+	return txs
+}
+
+func FindTx(b *blockchain, targetID string) *Tx {
+	for _, tx := range Txs(b) {
+		if tx.ID == targetID {
+			return tx
+		}
+	}
+	return nil
+}
+
 // recalculate difficulty of block by timestamp
 func recalculateDifficulty(b *blockchain) int {
 	// get all blocks
@@ -116,12 +154,12 @@ func UTxOutsByAddress(address string, b *blockchain) []*UTxOut {
 	for _, block := range Blocks(b) {
 		for _, tx := range block.Transactions {
 			for _, input := range tx.TxIns {
-				if input.Owner == address {
+				if input.Signature == address {
 					creatorTxs[input.TxID] = true
 				}
 			}
 			for index, output := range tx.TxOuts {
-				if output.Owner == address {
+				if output.Address == address {
 					if _, ok := creatorTxs[tx.ID]; !ok {
 						uTxOut := &UTxOut{tx.ID, index, output.Amount}
 						if !isOnMempool(uTxOut) {
@@ -144,25 +182,4 @@ func BalancByAddress(address string, b *blockchain) int {
 		amount += txOut.Amount
 	}
 	return amount
-}
-
-func Blockchain() *blockchain {
-	// run only one time
-	once.Do(func() {
-		// initial blockchain struct
-		b = &blockchain{Height: 0}
-
-		// search for checkpoint on the db
-		checkpoint := db.Checkpoint()
-
-		if checkpoint == nil {
-			// if blockchain don't exist create block
-			b.AddBlock()
-		} else {
-			// restore data from db
-			b.restore(checkpoint)
-		}
-	})
-	// return type blockchain struct
-	return b
 }
