@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/yoonhero/ohpotatocoin/wallet"
-)
+import "github.com/yoonhero/ohpotatocoin/wallet"
 
 func main() {
 	// // close db to protect db file data
@@ -10,6 +8,5 @@ func main() {
 
 	// // rest or html server start
 	// cli.Start()
-
-	wallet.Start()
+	wallet.Wallet()
 }
