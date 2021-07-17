@@ -125,7 +125,10 @@ func (b *blockchain) UTxOutsByAddress(address string) []*UTxOut {
 				fmt.Println(output)
 				if output.Owner == address {
 					if _, ok := creatorTxs[tx.ID]; !ok {
-						uTxOuts = append(uTxOuts, &UTxOut{tx.ID, index, output.Amount})
+						uTxOut := &UTxOut{tx.ID, index, output.Amount}
+						if !isOnMempool(uTxOut) {
+							uTxOuts = append(uTxOuts, uTxOut)
+						}
 					}
 				}
 			}
