@@ -1,12 +1,10 @@
 package wallet
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
@@ -18,23 +16,21 @@ const (
 )
 
 func Start() {
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-
-	keyAsBytes, err := x509.MarshalECPrivateKey(privateKey)
-
-	fmt.Printf("%x\n\n\n\n\n\n", keyAsBytes)
-
-	// hashedMessage := utils.Hash(message)
-	utils.HandleErr(err)
-
-	hashAsBytes, err := hex.DecodeString(hashedMessage)
-
-	r, s, err := ecdsa.Sign(rand.Reader, privateKey, hashAsBytes)
-
-	signature := append(r.Bytes(), s.Bytes()...)
-
-	fmt.Printf("%x\n", signature)
+	privBytes, err := hex.DecodeString(privateKey)
 
 	utils.HandleErr(err)
 
+	_, err = x509.ParseECPrivateKey(privBytes)
+	utils.HandleErr(err)
+
+	sigBytes, err := hex.DecodeString(signature)
+	rBytes := sigBytes[:len(sigBytes)/2]
+	sBytes := sigBytes[len(sigBytes)/2:]
+
+	var bigR, bigS = big.Int{}, big.Int{}
+
+	bigR.SetBytes(rBytes)
+	bigS.SetBytes(sBytes)
+
+	fmt.Println(bigR, bigS)
 }
