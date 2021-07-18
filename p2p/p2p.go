@@ -3,6 +3,7 @@ package p2p
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/yoonhero/ohpotatocoin/utils"
@@ -17,10 +18,13 @@ func Upgrade(rw http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(rw, r, nil)
 	utils.HandleErr(err)
 	for {
-		fmt.Println("Waiting for message ...")
 		_, p, err := conn.ReadMessage()
-		fmt.Println("Message arrived")
-		utils.HandleErr(err)
+		if err != nil {
+			break
+		}
 		fmt.Printf("%s\n\n", p)
+		time.Sleep(1 * time.Second)
+		message := fmt.Sprintf("We also think that: %s", p)
+		utils.HandleErr(conn.WriteMessage(websocket.TextMessage, []byte(message)))
 	}
 }
