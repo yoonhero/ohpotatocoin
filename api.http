@@ -30,7 +30,7 @@ POST http://localhost:4000/transactions
 
 {
   "to":"youngmin",
-  "amount":100
+  "amount":1000
 }
 
 ###

@@ -1,0 +1,10 @@
+(TxOut1, TxOut2)
+
+Tx
+  TxIn [
+    (TxOut1)
+    (TxOut2)
+  ]
+  Sign: X
+
+TxIn.Sign + TxOut1.Address = true 
