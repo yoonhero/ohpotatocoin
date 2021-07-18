@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-func countToTen(name string) {
+func countToTen(c chan int) {
 	for i := range [10]int{} {
-		fmt.Println(i)
+		c <- i
 		time.Sleep(1 * time.Second)
 	}
 }
@@ -18,7 +18,11 @@ func main() {
 
 	// // rest or html server start
 	// cli.Start()
-	go countToTen("f")
-	go countToTen("s")
+	c := make(chan int)
+	go countToTen(c)
+	for {
+		a := <-c
+		fmt.Println(a)
+	}
 
 }
