@@ -20,4 +20,5 @@ func main() {
 	// cli.Start()
 	go countToTen("f")
 	go countToTen("s")
+
 }
