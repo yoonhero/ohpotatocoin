@@ -62,6 +62,15 @@ func validate(tx *Tx) bool {
 	valid := true
 	for _, txIn := range tx.TxIns {
 		prevTx := FindTx(Blockchain(), txIn.TxID)
+		if prevTx == nil {
+			valid = false
+			break
+		}
+		address := prevTx.TxOuts[txIn.Index].Address
+		valid = wallet.Verity(txIn.Signature, tx.ID, address)
+		if !valid {
+			break
+		}
 	}
 	return valid
 }
@@ -98,10 +107,13 @@ func makeCoinbaseTx(address string) *Tx {
 	return &tx
 }
 
+var ErrorNoMonery = errors.New("not enough monery")
+var ErrorNotValid = errors.New("Tx Invalid")
+
 // make transaction
 func makeTx(from, to string, amount int) (*Tx, error) {
 	if BalancByAddress(from, Blockchain()) < amount {
-		return nil, errors.New("Not enough money")
+		return nil, ErrorNoMonery
 	}
 	var txOuts []*TxOut
 	var txIns []*TxIn
@@ -129,7 +141,12 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	}
 	tx.getId()
 	tx.sign()
+	valid := validate(tx)
+	if !valid {
+		return nil, ErrorNotValid
+	}
 	return tx, nil
+
 }
 
 // add transaction

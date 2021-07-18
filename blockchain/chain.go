@@ -154,7 +154,10 @@ func UTxOutsByAddress(address string, b *blockchain) []*UTxOut {
 	for _, block := range Blocks(b) {
 		for _, tx := range block.Transactions {
 			for _, input := range tx.TxIns {
-				if input.Signature == address {
+				if input.Signature == "COINBASE" {
+					break
+				}
+				if FindTx(b, input.TxID).TxOuts[input.Index].Address == address {
 					creatorTxs[input.TxID] = true
 				}
 			}

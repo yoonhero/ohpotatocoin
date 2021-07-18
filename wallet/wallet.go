@@ -82,7 +82,7 @@ func restoreBigInts(payload string) (*big.Int, *big.Int, error) {
 	return &bigA, &bigB, nil
 }
 
-func verity(signature, payload, address string) bool {
+func Verity(signature, payload, address string) bool {
 	r, s, err := restoreBigInts(signature)
 	utils.HandleErr(err)
 	x, y, err := restoreBigInts(address)
