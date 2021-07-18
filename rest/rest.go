@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/yoonhero/ohpotatocoin/blockchain"
 	"github.com/yoonhero/ohpotatocoin/utils"
+	"github.com/yoonhero/ohpotatocoin/wallet"
 )
 
 // variable post string
@@ -50,6 +51,10 @@ type urlDescription struct {
 type balanceResponse struct {
 	Address string `json:"address"`
 	Balance int    `json:"balance"`
+}
+
+type myWalletResponse struct {
+	Address string `json:"address"`
 }
 
 type errorResponse struct {
@@ -206,6 +211,14 @@ func transaction(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
+func myWallet(rw http.ResponseWriter, r *http.Request) {
+	address := wallet.Wallet().Address
+	// json.NewEncoder(rw).Encode(myWalletResponse{Address: address})
+	json.NewEncoder(rw).Encode(struct {
+		Address string `json:"address"`
+	}{Address: address})
+}
+
 func Start(aPort int) {
 	// use NewServeMux() to fix the err
 	// which occurs when we try to run various http server
@@ -218,7 +231,7 @@ func Start(aPort int) {
 	// when  get or post "/" url
 	router.HandleFunc("/", documentation).Methods("GET")
 
-	router.HandleFunc("/status", status)
+	router.HandleFunc("/status", status).Methods("GET")
 
 	// when get or post "/blocks" url
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
@@ -226,9 +239,12 @@ func Start(aPort int) {
 	// get parameter using mux
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET")
 
-	router.HandleFunc("/balance/{address}", balance)
+	router.HandleFunc("/balance/{address}", balance).Methods("GET")
 
-	router.HandleFunc("/mempool", mempool)
+	router.HandleFunc("/mempool", mempool).Methods("GET")
+
+	router.HandleFunc("/wallet", myWallet)
+
 	router.HandleFunc("/transactions", transaction).Methods("POST")
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
