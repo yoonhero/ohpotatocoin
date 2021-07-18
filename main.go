@@ -1,14 +1,23 @@
 package main
 
 import (
-	"github.com/yoonhero/ohpotatocoin/cli"
-	"github.com/yoonhero/ohpotatocoin/db"
+	"fmt"
+	"time"
 )
 
-func main() {
-	// close db to protect db file data
-	defer db.Close()
+func countToTen(name string) {
+	for i := range [10]int{} {
+		fmt.Println(i)
+		time.Sleep(1 * time.Second)
+	}
+}
 
-	// rest or html server start
-	cli.Start()
+func main() {
+	// // close db to protect db file data
+	// defer db.Close()
+
+	// // rest or html server start
+	// cli.Start()
+	go countToTen("f")
+	go countToTen("s")
 }
