@@ -29,8 +29,8 @@ type Tx struct {
 
 // transaction input value
 type TxIn struct {
-	TxID      string `json:"txId"`
-	Index     int    `json:"index"`
+	TxID      string `json:"txId"`  // set unspent transactoin output id
+	Index     int    `json:"index"` // set unspent transaction output index
 	Signature string `json:"signature"`
 }
 
@@ -52,22 +52,28 @@ func (t *Tx) getId() {
 	t.ID = utils.Hash(t)
 }
 
+// sign the transaction
 func (t *Tx) sign() {
 	for _, txIn := range t.TxIns {
 		txIn.Signature = wallet.Sign(t.ID, wallet.Wallet())
 	}
 }
 
+// validate the transaction
 func validate(tx *Tx) bool {
 	valid := true
 	for _, txIn := range tx.TxIns {
+		// find prev transaction and it exists or not
 		prevTx := FindTx(Blockchain(), txIn.TxID)
 		if prevTx == nil {
 			valid = false
 			break
 		}
+
+		// validate the private key and public key
 		address := prevTx.TxOuts[txIn.Index].Address
 		valid = wallet.Verity(txIn.Signature, tx.ID, address)
+
 		if !valid {
 			break
 		}
@@ -75,6 +81,7 @@ func validate(tx *Tx) bool {
 	return valid
 }
 
+// recognize that transaction is on mempool or not
 func isOnMempool(uTxOut *UTxOut) (exists bool) {
 Outer:
 	for _, tx := range Mempool.Txs {
@@ -112,27 +119,41 @@ var ErrorNotValid = errors.New("Tx Invalid")
 
 // make transaction
 func makeTx(from, to string, amount int) (*Tx, error) {
-	if BalancByAddress(from, Blockchain()) < amount {
+	// if from's balance < amount return
+	if BalanceByAddress(from, Blockchain()) < amount {
 		return nil, ErrorNoMonery
 	}
+
 	var txOuts []*TxOut
 	var txIns []*TxIn
 	total := 0
 	uTxOuts := UTxOutsByAddress(from, Blockchain())
+
 	for _, uTxOut := range uTxOuts {
+		// total is more than amount and return
 		if total > amount {
 			break
 		}
+
+		// make transaction input
 		txIn := &TxIn{uTxOut.TxID, uTxOut.Index, from}
 		txIns = append(txIns, txIn)
+
+		// plus total
 		total += uTxOut.Amount
 	}
+
+	// if there is change and return transaction output
 	if change := total - amount; change != 0 {
 		changeTxOut := &TxOut{from, change}
 		txOuts = append(txOuts, changeTxOut)
 	}
+
+	// make tranasaction output
 	txOut := &TxOut{to, amount}
 	txOuts = append(txOuts, txOut)
+
+	// make transaction
 	tx := &Tx{
 		ID:        "",
 		Timestamp: int(time.Now().Unix()),
@@ -140,8 +161,13 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 		TxOuts:    txOuts,
 	}
 	tx.getId()
+
+	// sign transaction
 	tx.sign()
+
+	// validate transaction
 	valid := validate(tx)
+
 	if !valid {
 		return nil, ErrorNotValid
 	}
@@ -159,6 +185,7 @@ func (m *mempool) AddTx(to string, amount int) error {
 	return nil
 }
 
+// transaction confirm
 func (m *mempool) TxToConfirm() []*Tx {
 	coinbase := makeCoinbaseTx(wallet.Wallet().Address)
 	txs := m.Txs

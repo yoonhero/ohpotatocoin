@@ -54,6 +54,7 @@ func FindBlock(hash string) (*Block, error) {
 	return block, nil
 }
 
+// mine the block
 func (b *Block) mine() {
 	target := strings.Repeat("0", b.Difficulty)
 	for {

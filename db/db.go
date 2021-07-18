@@ -74,10 +74,9 @@ func SaveCheckpoint(data []byte) {
 	utils.HandleErr(err)
 }
 
-// return blockchain data in db
+// blockchain data in db
 func Checkpoint() []byte {
 	var data []byte
-
 	// read only func View() to see blockchain
 	DB().View(func(t *bolt.Tx) error {
 		bucket := t.Bucket([]byte(dataBucket))
@@ -87,10 +86,9 @@ func Checkpoint() []byte {
 	return data
 }
 
-// return block data which user want to find in db
+// find block in db
 func Block(hash string) []byte {
 	var data []byte
-
 	// read only func View() to find blocks
 	DB().View(func(t *bolt.Tx) error {
 		bucket := t.Bucket([]byte(blocksBucket))

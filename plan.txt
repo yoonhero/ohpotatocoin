@@ -1,3 +1,42 @@
+type Block struct {
+	Hash         string `json:"hash"`
+	PrevHash     string `json:"prevHash,omitempty"`
+	Height       int    `json:"height"`
+	Difficulty   int    `json:"difficulty"`
+	Nonce        int    `json:"nonce"`
+	Timestamp    int    `json:"timestamp"`
+	Transactions []*Tx  `json:"transactions"`
+}
+type blockchain struct {
+	NewestHash        string `json:"newestHash"`
+	Height            int    `json:"height"`
+	CurrentDifficulty int    `json:"currentDifficulty"`
+}
+type mempool struct {
+	Txs []*Tx
+}
+type Tx struct {
+	ID        string   `json:"id"`
+	Timestamp int      `json:"timestamp"`
+	TxIns     []*TxIn  `json:"txIns"`
+	TxOuts    []*TxOut `json:"txOuts"`
+}
+type TxIn struct {
+	TxID      string `json:"txId"`
+	Index     int    `json:"index"`
+	Signature string `json:"signature"`
+}
+type TxOut struct {
+	Address string `json:"address"`
+	Amount  int    `json:"amount"`
+}
+type UTxOut struct {
+	TxID   string `json:"txId"`
+	Index  int    `json:"index"`
+	Amount int    `json:"amount"`
+}
+
+
 Tx1 
   TxIns[COINBASE]
   TxOuts[&5(you)] <---- Spent TxOut 
