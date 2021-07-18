@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/yoonhero/ohpotatocoin/blockchain"
+	"github.com/yoonhero/ohpotatocoin/p2p"
 	"github.com/yoonhero/ohpotatocoin/utils"
 	"github.com/yoonhero/ohpotatocoin/wallet"
 )
@@ -98,6 +99,11 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Method:      "GET",
 			Description: "Get TxOuts for an Address",
 		},
+		{
+			URL:         url("/ws"),
+			Method:      "GET",
+			Description: "Upgrade to WebSockets",
+		},
 	}
 	// add content json type
 	// rw.Header().Add("Content-Type", "application/json")
@@ -180,6 +186,15 @@ func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
 	})
 }
 
+func loggerMiddleWare(next http.Handler) http.Handler {
+	// make a type of http.Handler
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		// add content json type
+		fmt.Println(r.URL)
+		next.ServeHTTP(rw, r)
+	})
+}
+
 func status(rw http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(rw).Encode(blockchain.Blockchain())
 }
@@ -226,7 +241,7 @@ func Start(aPort int) {
 	router := mux.NewRouter()
 
 	// add json content type
-	router.Use(jsonContentTypeMiddleWare)
+	router.Use(jsonContentTypeMiddleWare, loggerMiddleWare)
 
 	port = fmt.Sprintf(":%d", aPort)
 	// when  get or post "/" url
@@ -245,6 +260,8 @@ func Start(aPort int) {
 	router.HandleFunc("/mempool", mempool).Methods("GET")
 
 	router.HandleFunc("/wallet", myWallet)
+
+	router.HandleFunc("/ws", p2p.Upgrade)
 
 	router.HandleFunc("/transactions", transaction).Methods("POST")
 	fmt.Printf("Listening on http://localhost%s\n", port)
