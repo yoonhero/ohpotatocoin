@@ -7,19 +7,21 @@ import (
 
 func countToTen(c chan<- int) {
 	for i := range [10]int{} {
-		time.Sleep(1 * time.Second)
+		fmt.Printf(">> sending %d << \n", i)
 		c <- i
+		fmt.Printf(">> sent %d << \n", i)
 	}
 	close(c)
 }
 
 func receive(c <-chan int) {
 	for {
+		time.Sleep(10 * time.Second)
 		a, ok := <-c
 		if !ok {
 			break
 		}
-		fmt.Println(a)
+		fmt.Printf("|| received %d || \n", a)
 	}
 }
 
@@ -29,7 +31,7 @@ func main() {
 
 	// // rest or html server start
 	// cli.Start()
-	c := make(chan int)
+	c := make(chan int, 5)
 	go countToTen(c)
 	receive(c)
 
