@@ -8,7 +8,14 @@
 </head>
 <body>
   <script>
-    const socket = new WebSocket("ws://localhost:4000/ws")
+    const socket = new WebSocket("ws://localhost:4000/ws");
+    socket.addEventListener("close", () => console.log("closed"));
+    setTimeout(() => {
+      socket.send("hello world")
+    }, 1000);
+    setTimeout(() => {
+      socket.send("hello again")
+    }, 5000);
   </script>
 </body>
 </html>
