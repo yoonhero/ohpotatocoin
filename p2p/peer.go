@@ -52,7 +52,7 @@ func (p *peer) read() {
 		if err != nil {
 			break
 		}
-		fmt.Printf("%d", m.Kind)
+		handleMsg(&m, p)
 	}
 }
 
