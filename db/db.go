@@ -1,13 +1,16 @@
 package db
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/yoonhero/ohpotatocoin/utils"
 	bolt "go.etcd.io/bbolt"
 )
 
 // declare const not to mistake
 const (
-	dbName       = "blockchain.db"
+	dbName       = "blockchain"
 	dataBucket   = "data"
 	blocksBucket = "blocks"
 	checkpoint   = "checkpoint"
@@ -16,12 +19,17 @@ const (
 // bolt.DB pointer
 var db *bolt.DB
 
+func getDbName() string {
+	port := os.Args[2][6:]
+	return fmt.Sprintf("%s_%s.db", dbName, port)
+}
+
 // create or load database
 func DB() *bolt.DB {
 	// if db var is nil
 	if db == nil {
 		// init db
-		dbPointer, err := bolt.Open(dbName, 0600, nil)
+		dbPointer, err := bolt.Open(getDbName(), 0600, nil)
 		db = dbPointer
 		utils.HandleErr(err)
 

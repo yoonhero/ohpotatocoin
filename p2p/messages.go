@@ -2,7 +2,6 @@ package p2p
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/yoonhero/ohpotatocoin/blockchain"
 	"github.com/yoonhero/ohpotatocoin/utils"
@@ -36,11 +35,36 @@ func sendNewestBlock(p *peer) {
 	p.inbox <- m
 }
 
+func requestAllBlocks(p *peer) {
+	m := makeMessage(MessageAllBlocksRequest, nil)
+	p.inbox <- m
+}
+
+func sendAllBlocks(p *peer) {
+	m := makeMessage(MessageAllBlocksResponse, blockchain.Blocks(blockchain.Blockchain()))
+	p.inbox <- m
+}
+
 func handleMsg(m *Message, p *peer) {
 	switch m.Kind {
 	case MessageNewestBlock:
 		var payload blockchain.Block
 		utils.HandleErr(json.Unmarshal(m.Payload, &payload))
-		fmt.Println(payload)
+		b, err := blockchain.FindBlock(blockchain.Blockchain().NewestHash)
+		utils.HandleErr(err)
+
+		if payload.Height >= b.Height {
+			// request all the blocks from 4000
+			requestAllBlocks(p)
+		} else {
+			// send 4000 our block
+			sendNewestBlock(p)
+		}
+	case MessageAllBlocksRequest:
+		sendAllBlocks(p)
+	case MessageAllBlocksResponse:
+		var payload []blockchain.Block
+		utils.HandleErr(json.Unmarshal(m.Payload, &payload))
 	}
+
 }
