@@ -68,7 +68,7 @@ type addTxPayload struct {
 }
 
 type addPeerPayload struct {
-	address, port string
+	Address, Port string
 }
 
 // when url is "/"
@@ -244,8 +244,10 @@ func peers(rw http.ResponseWriter, r *http.Request) {
 	case "POST":
 		var payload addPeerPayload
 		json.NewDecoder(r.Body).Decode(&payload)
-		p2p.AddToPeer(payload.address, payload.port)
+		p2p.AddToPeer(payload.Address, payload.Port)
 		rw.WriteHeader(http.StatusOK)
+	case "GET":
+		json.NewEncoder(rw).Encode(p2p.Peers)
 	}
 }
 
@@ -277,7 +279,7 @@ func Start(aPort int) {
 
 	router.HandleFunc("/transactions", transaction).Methods("POST")
 
-	router.HandleFunc("/peers", peers).Methods("POST")
+	router.HandleFunc("/peers", peers).Methods("GET", "POST")
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
 	// print if err exist
