@@ -244,7 +244,7 @@ func peers(rw http.ResponseWriter, r *http.Request) {
 	case "POST":
 		var payload addPeerPayload
 		json.NewDecoder(r.Body).Decode(&payload)
-		p2p.AddToPeer(payload.Address, payload.Port)
+		p2p.AddToPeer(payload.Address, payload.Port, port)
 		rw.WriteHeader(http.StatusOK)
 	case "GET":
 		json.NewEncoder(rw).Encode(p2p.Peers)
@@ -252,6 +252,8 @@ func peers(rw http.ResponseWriter, r *http.Request) {
 }
 
 func Start(aPort int) {
+	port = fmt.Sprintf(":%d", aPort)
+
 	// use NewServeMux() to fix the err
 	// which occurs when we try to run various http server
 	router := mux.NewRouter()
@@ -259,7 +261,6 @@ func Start(aPort int) {
 	// add json content type
 	router.Use(jsonContentTypeMiddleWare, loggerMiddleWare)
 
-	port = fmt.Sprintf(":%d", aPort)
 	// when  get or post "/" url
 	router.HandleFunc("/", documentation).Methods("GET")
 
