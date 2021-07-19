@@ -242,4 +242,5 @@ func (b *blockchain) AddPeerBlock(block *Block) {
 	persistBlock(block)
 
 	// mempool
+
 }
