@@ -128,7 +128,7 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 		// rw.Header().Add("Content-Type", "application/json")
 
 		// send all blocks
-		json.NewEncoder(rw).Encode(blockchain.Blocks(blockchain.Blockchain()))
+		utils.HandleErr(json.NewEncoder(rw).Encode(blockchain.Blocks(blockchain.Blockchain())))
 
 		// when POST
 	case "POST":
@@ -141,7 +141,9 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 		// utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
 
 		// add block whose data is addBlockBody.Message
-		blockchain.Blockchain().AddBlock()
+		newBlock := blockchain.Blockchain().AddBlock()
+
+		p2p.BroadcastNewBlock(newBlock)
 
 		// send a 201 sign
 		rw.WriteHeader(http.StatusCreated)
@@ -200,7 +202,7 @@ func loggerMiddleWare(next http.Handler) http.Handler {
 }
 
 func status(rw http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(rw).Encode(blockchain.Blockchain())
+	blockchain.Status(blockchain.Blockchain(), rw)
 }
 
 func balance(rw http.ResponseWriter, r *http.Request) {

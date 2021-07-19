@@ -5,6 +5,8 @@
 package blockchain
 
 import (
+	"encoding/json"
+	"net/http"
 	"sync"
 
 	"github.com/yoonhero/ohpotatocoin/db"
@@ -24,6 +26,7 @@ type blockchain struct {
 	NewestHash        string `json:"newestHash"`
 	Height            int    `json:"height"`
 	CurrentDifficulty int    `json:"currentDifficulty"`
+	m                 sync.Mutex
 }
 
 // variable blockchain pointers
@@ -39,7 +42,7 @@ func (b *blockchain) restore(data []byte) {
 }
 
 // add block to blockchain
-func (b *blockchain) AddBlock() {
+func (b *blockchain) AddBlock() *Block {
 	// createBlock
 	block := createBlock(b.NewestHash, b.Height+1, getDifficulty(b))
 
@@ -52,10 +55,13 @@ func (b *blockchain) AddBlock() {
 
 	// persist the blockchain
 	persistBlockchain(b)
+	return block
 }
 
 // all blocks
 func Blocks(b *blockchain) []*Block {
+	b.m.Lock()
+	defer b.m.Unlock()
 	var blocks []*Block
 
 	// start newesthash and its prevhash and find block
@@ -98,6 +104,13 @@ func Blockchain() *blockchain {
 	})
 	// return type blockchain struct
 	return b
+}
+
+func Status(b *blockchain, rw http.ResponseWriter) {
+	b.m.Lock()
+	defer b.m.Unlock()
+
+	utils.HandleErr(json.NewEncoder(rw).Encode(b))
 }
 
 // all transactions
@@ -197,4 +210,17 @@ func BalanceByAddress(address string, b *blockchain) int {
 		amount += txOut.Amount
 	}
 	return amount
+}
+
+func (b *blockchain) Replace(newBlocks []*Block) {
+	b.m.Lock()
+	defer b.m.Unlock()
+	b.CurrentDifficulty = newBlocks[0].Difficulty
+	b.Height = len(newBlocks)
+	b.NewestHash = newBlocks[0].Hash
+	persistBlockchain(b)
+	db.EmptyBlocks()
+	for _, block := range newBlocks {
+		persistBlock(block)
+	}
 }

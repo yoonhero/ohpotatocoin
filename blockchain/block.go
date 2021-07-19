@@ -25,7 +25,7 @@ type Block struct {
 }
 
 // persist data
-func (b *Block) persist() {
+func persistBlock(b *Block) {
 	db.SaveBlock(b.Hash, utils.ToBytes(b))
 }
 
@@ -85,7 +85,7 @@ func createBlock(prevHash string, height int, diff int) *Block {
 	block.Transactions = Mempool.TxToConfirm()
 
 	// persist the block
-	block.persist()
+	persistBlock(block)
 
 	return block
 }
