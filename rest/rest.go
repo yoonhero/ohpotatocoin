@@ -67,6 +67,10 @@ type addTxPayload struct {
 	Amount int
 }
 
+type addPeerPayload struct {
+	address, port string
+}
+
 // when url is "/"
 func documentation(rw http.ResponseWriter, r *http.Request) {
 
@@ -235,6 +239,16 @@ func myWallet(rw http.ResponseWriter, r *http.Request) {
 	}{Address: address})
 }
 
+func peers(rw http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		var payload addPeerPayload
+		json.NewDecoder(r.Body).Decode(&payload)
+		p2p.AddToPeer(payload.address, payload.port)
+		rw.WriteHeader(http.StatusOK)
+	}
+}
+
 func Start(aPort int) {
 	// use NewServeMux() to fix the err
 	// which occurs when we try to run various http server
@@ -258,12 +272,12 @@ func Start(aPort int) {
 	router.HandleFunc("/balance/{address}", balance).Methods("GET")
 
 	router.HandleFunc("/mempool", mempool).Methods("GET")
-
-	router.HandleFunc("/wallet", myWallet)
-
-	router.HandleFunc("/ws", p2p.Upgrade)
+	router.HandleFunc("/wallet", myWallet).Methods("GET")
+	router.HandleFunc("/ws", p2p.Upgrade).Methods("GET")
 
 	router.HandleFunc("/transactions", transaction).Methods("POST")
+
+	router.HandleFunc("/peers", peers).Methods("POST")
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
 	// print if err exist
