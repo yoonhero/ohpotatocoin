@@ -22,8 +22,8 @@ func Upgrade(rw http.ResponseWriter, r *http.Request) {
 
 	conn, err := upgrader.Upgrade(rw, r, nil)
 	utils.HandleErr(err)
-	initPeer(conn, ip, openPort)
-	conn.WriteMessage(websocket.TextMessage, []byte("Hello from Port 3000"))
+	peer := initPeer(conn, ip, openPort)
+	peer.inbox <- []byte("Hello from 3000")
 }
 
 func AddToPeer(address, port, openPort string) {
@@ -32,7 +32,7 @@ func AddToPeer(address, port, openPort string) {
 
 	utils.HandleErr(err)
 
-	initPeer(conn, address, port)
+	peer := initPeer(conn, address, port)
 	time.Sleep(5 * time.Second)
-	conn.WriteMessage(websocket.TextMessage, []byte("Hello from Port 4000"))
+	peer.inbox <- []byte("Hello from 4000")
 }
