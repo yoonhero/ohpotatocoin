@@ -30,5 +30,6 @@ func AddToPeer(address, port, openPort string) {
 
 	utils.HandleErr(err)
 
-	initPeer(conn, address, port)
+	p := initPeer(conn, address, port)
+	sendNewestBlock(p)
 }
