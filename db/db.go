@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/boltdb/bolt"
 	"github.com/yoonhero/ohpotatocoin/utils"
+	bolt "go.etcd.io/bbolt"
 )
 
 // declare const not to mistake

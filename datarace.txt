@@ -1,0 +1,5 @@
+Tickets(1)
+
+Mr A. ------> Shopping Cart ---> Pay(1? OK) ----> Solid!
+
+Mr B. ------> Shopping Cart ---> Pay(1? OK) ----> Solid!
