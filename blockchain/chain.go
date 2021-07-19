@@ -224,3 +224,22 @@ func (b *blockchain) Replace(newBlocks []*Block) {
 		persistBlock(block)
 	}
 }
+
+func (b *blockchain) LockBlockchain() {
+	b.m.Lock()
+	defer b.m.Unlock()
+}
+
+func (b *blockchain) AddPeerBlock(block *Block) {
+	b.m.Lock()
+	defer b.m.Unlock()
+
+	b.Height += 1
+	b.CurrentDifficulty = block.Difficulty
+	b.NewestHash = block.Hash
+
+	persistBlockchain(b)
+	persistBlock(block)
+
+	// mempool
+}

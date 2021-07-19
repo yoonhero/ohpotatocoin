@@ -35,6 +35,7 @@ func AddToPeer(address, port, openPort string) {
 }
 
 func BroadcastNewBlock(b *blockchain.Block) {
+	blockchain.Blockchain().LockBlockchain()
 	for _, p := range Peers.v {
 		notifyNewBlock(b, p)
 	}
