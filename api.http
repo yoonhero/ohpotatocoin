@@ -2,7 +2,7 @@ http://localhost:4000/
 ###
 http://localhost:4000/blocks
 ###
-POST http://localhost:4000/blocks
+POST http://localhost:3000/blocks
 ###
 http://localhost:4000/blocks/1
 ###
@@ -12,11 +12,11 @@ http://localhost:4000/balance/f282b074d98155e5248aae43879594929ba471752e7f257528
 ### 
 http://localhost:4000/mempool
 ### 
-POST http://localhost:4000/transactions
+POST http://localhost:3000/transactions
 
 {
   "to":"youngmin",
-  "amount":1000
+  "amount":40
 }
 ###
 http://localhost:4000/wallet
