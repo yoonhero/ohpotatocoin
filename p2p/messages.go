@@ -3,6 +3,7 @@ package p2p
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/yoonhero/ohpotatocoin/blockchain"
 	"github.com/yoonhero/ohpotatocoin/utils"
@@ -102,7 +103,9 @@ func handleMsg(m *Message, p *peer) {
 	case MessageNewPeerNotify:
 		var payload string
 		utils.HandleErr(json.Unmarshal(m.Payload, &payload))
-		fmt.Printf("I will now /ws upgrade %s\n", payload)
+		parts := strings.Split(payload, ":")
+		if len(parts) >= 3 {
+			AddPeer(parts[0], parts[1], parts[2], false)
+		}
 	}
-
 }
