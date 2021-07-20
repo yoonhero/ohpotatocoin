@@ -6,6 +6,7 @@ package blockchain
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
 
@@ -80,6 +81,24 @@ func Blocks(b *blockchain) []*Block {
 	return blocks
 }
 
+// get the latest 6 blocks
+func LatestBlock(b *blockchain, rw http.ResponseWriter) {
+	var blocks []*Block
+	for _, v := range Blocks(b) {
+		h := fmt.Sprintf("%s", v.Hash[0:7]) + "..."
+		v.Hash = h
+		if len(v.PrevHash) > 7 {
+			ph := fmt.Sprintf("%s", v.PrevHash[0:7]) + "..."
+			v.PrevHash = ph
+		}
+		blocks = append(blocks, v)
+	}
+	if len(blocks) > 6 {
+		blocks = blocks[0:6]
+	}
+	utils.HandleErr(json.NewEncoder(rw).Encode(blocks))
+}
+
 // persist the blockchain data
 func persistBlockchain(b *blockchain) {
 	db.SaveCheckpoint(utils.ToBytes(b))
@@ -120,6 +139,14 @@ func Txs(b *blockchain) []*Tx {
 		txs = append(txs, block.Transactions...)
 	}
 	return txs
+}
+
+func GetLatestTransactions(b *blockchain, rw http.ResponseWriter) {
+	txs := Txs(b)
+	if len(txs) > 6 {
+		txs = txs[0:6]
+	}
+	utils.HandleErr(json.NewEncoder(rw).Encode(txs))
 }
 
 // find specific transaction

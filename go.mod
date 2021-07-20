@@ -3,6 +3,7 @@ module github.com/yoonhero/ohpotatocoin
 go 1.16
 
 require (
+	github.com/PuerkitoBio/goquery v1.7.1 // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/br0xen/boltbrowser v0.0.0-20210531150353-7f10a81cece0 // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.1 // indirect

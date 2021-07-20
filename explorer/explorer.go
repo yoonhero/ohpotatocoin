@@ -34,8 +34,18 @@ func home(rw http.ResponseWriter, r *http.Request) {
 	// set data
 	// pagetitle is "Home"
 	// Blocks is blockchain's allblocks
-	data := homeData{"Home", nil}
+	var blocks []*blockchain.Block
+	for _, v := range blockchain.Blocks(blockchain.Blockchain()) {
+		h := fmt.Sprintf("%s", v.Hash[0:7]) + "..."
+		v.Hash = h
+		if len(v.PrevHash) > 7 {
+			ph := fmt.Sprintf("%s", v.PrevHash[0:7]) + "..."
+			v.PrevHash = ph
+		}
 
+		blocks = append(blocks, v)
+	}
+	data := homeData{"OhPotato", blocks[0:6]}
 	// execute
 	// writer is http.ResponseWrite
 	// templates is "home.gohtml"
@@ -86,11 +96,13 @@ func Start(port int) {
 	templates = template.Must(template.ParseGlob(templateDir + "pages/*.gohtml"))
 	templates = template.Must(templates.ParseGlob(templateDir + "partials/*.gohtml"))
 
+	cssHandler := http.FileServer(http.Dir("./css/"))
+
 	// if url is "/"
 	router.HandleFunc("/", home)
-
+	http.Handle("/css/", http.StripPrefix("/css/", cssHandler))
 	// if url is "/add"
-	router.HandleFunc("/add", add)
+	// router.HandleFunc("/add", add)
 
 	fmt.Printf("Listening on http://localhost:%d\n", port)
 

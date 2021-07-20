@@ -2,13 +2,23 @@
 <!DOCTYPE html>
 <html lang="en">
 {{template "head" .PageTitle}}
-
 <body>
   {{template "header" .PageTitle}}
   <main>
+  <div>
+   <span>Latest Blocks</span>
+    <ul class="responsive-table">
+      <li class="table-header">
+      <div class="col col-1">Id</div>
+      <div class="col col-2">Hash</div>
+      <div class="col col-3">PrevHash</div>
+      <div class="col col-4">Time</div>
+    </li>
     {{range .Blocks}}
     {{template "block" .}}
     {{end}}
+    </ul>
+    </div>
   </main>
   {{template "footer" .PageTitle}}
 </body>

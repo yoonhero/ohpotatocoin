@@ -71,6 +71,10 @@ type addPeerPayload struct {
 	Address, Port string
 }
 
+type loadWalletPayload struct {
+	Address string
+}
+
 // when url is "/"
 func documentation(rw http.ResponseWriter, r *http.Request) {
 
@@ -90,18 +94,37 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			URL:         url("/blocks"),
 			Method:      "POST",
 			Description: "Add A Block",
-			Payload:     "data:string",
+		},
+		{
+			URL:         url("/latestblocks"),
+			Method:      "GET",
+			Description: "See A Latest Blocks",
+		},
+		{
+			URL:         url("/latesttransactions"),
+			Method:      "GET",
+			Description: "See A Latest Transactions",
 		},
 		{
 			URL:         url("/blocks/{hash]"),
 			Method:      "Get",
 			Description: "See A Block",
-			Payload:     "data:string",
+			Payload:     "data:hash",
 		},
 		{
 			URL:         url("/balance/{address}"),
 			Method:      "GET",
 			Description: "Get TxOuts for an Address",
+		},
+		{
+			URL:         url("/transaction"),
+			Method:      "POST",
+			Description: "Make a T ransaction",
+		},
+		{
+			URL:         url("/mempool"),
+			Method:      "GET",
+			Description: "See A Unconfirmed Transactions",
 		},
 		{
 			URL:         url("/ws"),
@@ -218,6 +241,15 @@ func balance(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func latestblocks(rw http.ResponseWriter, r *http.Request) {
+	blockchain.LatestBlock(blockchain.Blockchain(), rw)
+	// utils.HandleErr(json.NewEncoder(rw).Encode())
+}
+
+func latesttransactions(rw http.ResponseWriter, r *http.Request) {
+	blockchain.GetLatestTransactions(blockchain.Blockchain(), rw)
+}
+
 func mempool(rw http.ResponseWriter, r *http.Request) {
 	utils.HandleErr(json.NewEncoder(rw).Encode(blockchain.Mempool().Txs))
 }
@@ -235,11 +267,15 @@ func transaction(rw http.ResponseWriter, r *http.Request) {
 }
 
 func myWallet(rw http.ResponseWriter, r *http.Request) {
-	address := wallet.Wallet().Address
+	vars := mux.Vars(r)
+	key := vars["address"]
 	// json.NewEncoder(rw).Encode(myWalletResponse{Address: address})
-	json.NewEncoder(rw).Encode(struct {
-		Address string `json:"address"`
-	}{Address: address})
+
+	utils.HandleErr(json.NewEncoder(rw).Encode(wallet.RestApiWallet(key)))
+}
+
+func createKey(rw http.ResponseWriter, r *http.Request) {
+	utils.HandleErr(json.NewEncoder(rw).Encode(wallet.CreatePrivKey()))
 }
 
 func peers(rw http.ResponseWriter, r *http.Request) {
@@ -274,11 +310,14 @@ func Start(aPort int) {
 
 	// get parameter using mux
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET")
+	router.HandleFunc("/latestblocks", latestblocks).Methods("GET")
+	router.HandleFunc("/latesttransactions", latesttransactions).Methods("GET")
 
 	router.HandleFunc("/balance/{address}", balance).Methods("GET")
 
 	router.HandleFunc("/mempool", mempool).Methods("GET")
-	router.HandleFunc("/wallet", myWallet).Methods("GET")
+	router.HandleFunc("/wallet/{key}", myWallet).Methods("GET")
+	router.HandleFunc("/createkey", createKey).Methods("GET")
 	router.HandleFunc("/ws", p2p.Upgrade).Methods("GET")
 
 	router.HandleFunc("/transactions", transaction).Methods("POST")

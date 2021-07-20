@@ -33,7 +33,7 @@ func hasWalletFile() bool {
 }
 
 // create random private key
-func createPrivKey() *ecdsa.PrivateKey {
+func CreatePrivKey() *ecdsa.PrivateKey {
 	// https://m.blog.naver.com/aepkoreanet/221178375642
 	priKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	utils.HandleErr(err)
@@ -131,11 +131,35 @@ func Wallet() *wallet {
 			w.privateKey = restoreKey()
 		} else {
 			// no -> create prv key, save to file
-			key := createPrivKey()
+			key := CreatePrivKey()
 			persistKey(key)
 			w.privateKey = key
 		}
 		w.Address = aFromK(w.privateKey)
 	}
 	return w
+}
+
+func RestApiWallet(key string) *wallet {
+	var wall *wallet
+	wall.privateKey = restapiRestoreKey([]byte(key))
+	wall.Address = aFromK(wall.privateKey)
+	return wall
+}
+
+// parse the key
+func restapiRestoreKey(keyAsBytes []byte) (key *ecdsa.PrivateKey) {
+	key, err := x509.ParseECPrivateKey(keyAsBytes)
+	utils.HandleErr(err)
+	return
+}
+
+func RestApiCreatePrivKey() (address string, privkey string) {
+	// https://m.blog.naver.com/aepkoreanet/221178375642
+	priKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	utils.HandleErr(err)
+	bytes, err := x509.MarshalECPrivateKey(priKey)
+	utils.HandleErr(err)
+	address = aFromK(priKey)
+	return address, string(bytes)
 }
