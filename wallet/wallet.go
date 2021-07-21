@@ -25,12 +25,12 @@ type wallet struct {
 
 var w *wallet
 
-// return file exists or not
-func hasWalletFile() bool {
-	_, err := os.Stat(fileName)
-	return !os.IsNotExist(err)
+// // return file exists or not
+// func hasWalletFile() bool {
+// 	_, err := os.Stat(fileName)
+// 	return !os.IsNotExist(err)
 
-}
+// }
 
 // create random private key
 func CreatePrivKey() *ecdsa.PrivateKey {
@@ -40,13 +40,13 @@ func CreatePrivKey() *ecdsa.PrivateKey {
 	return priKey
 }
 
-// save the key
-func persistKey(key *ecdsa.PrivateKey) {
-	bytes, err := x509.MarshalECPrivateKey(key)
-	utils.HandleErr(err)
-	err = os.WriteFile(fileName, bytes, 0644)
-	utils.HandleErr(err)
-}
+// // save the key
+// func persistKey(key *ecdsa.PrivateKey) {
+// 	bytes, err := x509.MarshalECPrivateKey(key)
+// 	utils.HandleErr(err)
+// 	err = os.WriteFile(fileName, bytes, 0644)
+// 	utils.HandleErr(err)
+// }
 
 // parse the key
 func restoreKey() (key *ecdsa.PrivateKey) {
