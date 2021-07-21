@@ -70,7 +70,7 @@ func (b *Block) mine() {
 }
 
 // create block
-func createBlock(prevHash string, height int, diff int) *Block {
+func createBlock(prevHash string, height int, diff int, from string) *Block {
 	block := &Block{
 		Hash:       "",
 		PrevHash:   prevHash,
@@ -82,7 +82,7 @@ func createBlock(prevHash string, height int, diff int) *Block {
 	// mining the block
 	block.mine()
 
-	block.Transactions = Mempool().TxToConfirm()
+	block.Transactions = Mempool().TxToConfirm(from)
 
 	// persist the block
 	persistBlock(block)

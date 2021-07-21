@@ -1,7 +1,9 @@
 package blockchain
 
 import (
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -65,9 +67,9 @@ func (t *Tx) getId() {
 }
 
 // sign the transaction
-func (t *Tx) sign() {
+func (t *Tx) sign(keyAsBytes []byte) {
 	for _, txIn := range t.TxIns {
-		txIn.Signature = wallet.Sign(t.ID, wallet.Wallet())
+		txIn.Signature = wallet.Sign(t.ID, keyAsBytes)
 	}
 }
 
@@ -75,15 +77,20 @@ func (t *Tx) sign() {
 func validate(tx *Tx) bool {
 	valid := true
 	for _, txIn := range tx.TxIns {
+		fmt.Println(txIn)
 		// find prev transaction and it exists or not
 		prevTx := FindTx(Blockchain(), txIn.TxID)
+		fmt.Println(prevTx)
 		if prevTx == nil {
+			fmt.Println("nononononononon")
 			valid = false
+			fmt.Println("nononononononon")
 			break
 		}
 
 		// validate the private key and public key
 		address := prevTx.TxOuts[txIn.Index].Address
+		fmt.Println(txIn.Signature, tx.ID, address)
 		valid = wallet.Verity(txIn.Signature, tx.ID, address)
 
 		if !valid {
@@ -130,7 +137,12 @@ var ErrorNoMonery = errors.New("not enough monery")
 var ErrorNotValid = errors.New("Tx Invalid")
 
 // make transaction
-func makeTx(from, to string, amount int) (*Tx, error) {
+func makeTx(privkey, to string, amount int) (*Tx, error) {
+	bytes, err := hex.DecodeString(privkey)
+	utils.HandleErr(err)
+	w := wallet.RestApiWallet(bytes)
+	from := w.Address
+	fmt.Println(from, amount)
 	// if from's balance < amount return
 	if BalanceByAddress(from, Blockchain()) < amount {
 		return nil, ErrorNoMonery
@@ -155,6 +167,8 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 		total += uTxOut.Amount
 	}
 
+	fmt.Print("\n\n\n", txIns[0].Signature, "\n\n\n\n")
+
 	// if there is change and return transaction output
 	if change := total - amount; change != 0 {
 		changeTxOut := &TxOut{from, change}
@@ -175,7 +189,7 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	tx.getId()
 
 	// sign transaction
-	tx.sign()
+	tx.sign([]byte(privkey))
 
 	// validate transaction
 	valid := validate(tx)
@@ -183,15 +197,16 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	if !valid {
 		return nil, ErrorNotValid
 	}
+
 	return tx, nil
 
 }
 
 // add transaction
-func (m *mempool) AddTx(to string, amount int) (*Tx, error) {
+func (m *mempool) AddTx(from, to string, amount int) (*Tx, error) {
 	m.m.Lock()
 	defer m.m.Unlock()
-	tx, err := makeTx(wallet.Wallet().Address, to, amount)
+	tx, err := makeTx(from, to, amount)
 	if err != nil {
 		return nil, err
 	}
@@ -200,10 +215,10 @@ func (m *mempool) AddTx(to string, amount int) (*Tx, error) {
 }
 
 // transaction confirm
-func (m *mempool) TxToConfirm() []*Tx {
+func (m *mempool) TxToConfirm(from string) []*Tx {
 	m.m.Lock()
 	defer m.m.Unlock()
-	coinbase := makeCoinbaseTx(wallet.Wallet().Address)
+	coinbase := makeCoinbaseTx(from)
 	var txs []*Tx
 	for _, tx := range m.Txs {
 		txs = append(txs, tx)

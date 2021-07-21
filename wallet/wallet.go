@@ -69,10 +69,12 @@ func aFromK(key *ecdsa.PrivateKey) string {
 }
 
 // sign the signature
-func Sign(payload string, w *wallet) string {
+func Sign(payload string, keyAsBytes []byte) string {
+	privkey, err := x509.ParseECPrivateKey(keyAsBytes)
+	utils.HandleErr(err)
 	payloadAsB, err := hex.DecodeString(payload)
 	utils.HandleErr(err)
-	r, s, err := ecdsa.Sign(rand.Reader, w.privateKey, payloadAsB)
+	r, s, err := ecdsa.Sign(rand.Reader, privkey, payloadAsB)
 	utils.HandleErr(err)
 	return encodeBigInts(r.Bytes(), s.Bytes())
 }
@@ -122,44 +124,47 @@ func Verity(signature, payload, address string) bool {
 	return ok
 }
 
-func Wallet() *wallet {
-	if w == nil {
-		w = &wallet{}
-		// has a wallet already
-		if hasWalletFile() {
-			// yes -> restore from file
-			w.privateKey = restoreKey()
-		} else {
-			// no -> create prv key, save to file
-			key := CreatePrivKey()
-			persistKey(key)
-			w.privateKey = key
-		}
-		w.Address = aFromK(w.privateKey)
-	}
-	return w
-}
+// func Wallet() *wallet {
+// 	if w == nil {
+// 		w = &wallet{}
+// 		// has a wallet already
+// 		if hasWalletFile() {
+// 			// yes -> restore from file
+// 			w.privateKey = restoreKey()
+// 		} else {
+// 			// no -> create prv key, save to file
+// 			key := CreatePrivKey()
+// 			persistKey(key)
+// 			w.privateKey = key
+// 		}
+// 		w.Address = aFromK(w.privateKey)
+// 	}
+// 	return w
+// }
 
-func RestApiWallet(key string) *wallet {
+func RestApiWallet(key []byte) *wallet {
 	var wall *wallet
-	wall.privateKey = restapiRestoreKey([]byte(key))
+	wall = &wallet{}
+	// fmt.Println(key, len(key))
+	restoredKey := restapiRestoreKey(key)
+	wall.privateKey = restoredKey
 	wall.Address = aFromK(wall.privateKey)
 	return wall
 }
 
 // parse the key
-func restapiRestoreKey(keyAsBytes []byte) (key *ecdsa.PrivateKey) {
+func restapiRestoreKey(keyAsBytes []byte) *ecdsa.PrivateKey {
 	key, err := x509.ParseECPrivateKey(keyAsBytes)
 	utils.HandleErr(err)
-	return
+	return key
 }
 
-func RestApiCreatePrivKey() (address string, privkey string) {
+func RestApiCreatePrivKey() (address string, bytes []byte) {
 	// https://m.blog.naver.com/aepkoreanet/221178375642
 	priKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	utils.HandleErr(err)
-	bytes, err := x509.MarshalECPrivateKey(priKey)
+	bytes, err = x509.MarshalECPrivateKey(priKey)
 	utils.HandleErr(err)
 	address = aFromK(priKey)
-	return address, string(bytes)
+	return address, bytes
 }

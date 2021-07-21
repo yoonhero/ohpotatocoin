@@ -75,7 +75,7 @@ func add(rw http.ResponseWriter, r *http.Request) {
 		// data := r.Form.Get("blockData")
 
 		// addblock data is data from r.Form.Get("blockchain")
-		blockchain.Blockchain().AddBlock()
+		blockchain.Blockchain().AddBlock("")
 
 		// redirect http
 		// writer is http.ResponseWrite

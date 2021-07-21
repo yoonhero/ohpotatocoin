@@ -43,9 +43,9 @@ func (b *blockchain) restore(data []byte) {
 }
 
 // add block to blockchain
-func (b *blockchain) AddBlock() *Block {
+func (b *blockchain) AddBlock(from string) *Block {
 	// createBlock
-	block := createBlock(b.NewestHash, b.Height+1, getDifficulty(b))
+	block := createBlock(b.NewestHash, b.Height+1, getDifficulty(b), from)
 
 	// set newesthash new block's hash
 	b.NewestHash = block.Hash
@@ -115,7 +115,7 @@ func Blockchain() *blockchain {
 
 		if checkpoint == nil {
 			// if blockchain don't exist create block
-			b.AddBlock()
+			b.AddBlock("")
 		} else {
 			// restore data from db
 			b.restore(checkpoint)
