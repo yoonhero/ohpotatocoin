@@ -3,7 +3,6 @@ package blockchain
 import (
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -77,20 +76,15 @@ func (t *Tx) sign(keyAsBytes []byte) {
 func validate(tx *Tx) bool {
 	valid := true
 	for _, txIn := range tx.TxIns {
-		fmt.Println(txIn)
 		// find prev transaction and it exists or not
 		prevTx := FindTx(Blockchain(), txIn.TxID)
-		fmt.Println(prevTx)
 		if prevTx == nil {
-			fmt.Println("nononononononon")
 			valid = false
-			fmt.Println("nononononononon")
 			break
 		}
 
 		// validate the private key and public key
 		address := prevTx.TxOuts[txIn.Index].Address
-		fmt.Println(txIn.Signature, tx.ID, address)
 		valid = wallet.Verity(txIn.Signature, tx.ID, address)
 
 		if !valid {
@@ -138,11 +132,10 @@ var ErrorNotValid = errors.New("Tx Invalid")
 
 // make transaction
 func makeTx(privkey, to string, amount int) (*Tx, error) {
-	bytes, err := hex.DecodeString(privkey)
+	privkeyAsByte, err := hex.DecodeString(privkey)
 	utils.HandleErr(err)
-	w := wallet.RestApiWallet(bytes)
+	w := wallet.RestApiWallet(privkeyAsByte)
 	from := w.Address
-	fmt.Println(from, amount)
 	// if from's balance < amount return
 	if BalanceByAddress(from, Blockchain()) < amount {
 		return nil, ErrorNoMonery
@@ -167,8 +160,6 @@ func makeTx(privkey, to string, amount int) (*Tx, error) {
 		total += uTxOut.Amount
 	}
 
-	fmt.Print("\n\n\n", txIns[0].Signature, "\n\n\n\n")
-
 	// if there is change and return transaction output
 	if change := total - amount; change != 0 {
 		changeTxOut := &TxOut{from, change}
@@ -189,7 +180,7 @@ func makeTx(privkey, to string, amount int) (*Tx, error) {
 	tx.getId()
 
 	// sign transaction
-	tx.sign([]byte(privkey))
+	tx.sign(privkeyAsByte)
 
 	// validate transaction
 	valid := validate(tx)

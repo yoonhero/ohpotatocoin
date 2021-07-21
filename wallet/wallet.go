@@ -145,7 +145,6 @@ func Verity(signature, payload, address string) bool {
 func RestApiWallet(key []byte) *wallet {
 	var wall *wallet
 	wall = &wallet{}
-	// fmt.Println(key, len(key))
 	restoredKey := restapiRestoreKey(key)
 	wall.privateKey = restoredKey
 	wall.Address = aFromK(wall.privateKey)

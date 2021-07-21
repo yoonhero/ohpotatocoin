@@ -105,6 +105,7 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			URL:         url("/blocks"),
 			Method:      "POST",
 			Description: "Add A Block",
+			Payload:     "{'from':''(miner)}",
 		},
 		{
 			URL:         url("/latestblocks"),
@@ -128,14 +129,21 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Description: "Get TxOuts for an Address",
 		},
 		{
-			URL:         url("/transaction"),
+			URL:         url("/transactions"),
 			Method:      "POST",
 			Description: "Make a T ransaction",
+			Payload:     "{'privkey':''(from), 'to':'', 'amount':''}",
 		},
+
 		{
 			URL:         url("/mempool"),
 			Method:      "GET",
 			Description: "See A Unconfirmed Transactions",
+		},
+		{
+			URL:         url("/createkey"),
+			Method:      "GET",
+			Description: "Make a Random Private Key and Public Key",
 		},
 		{
 			URL:         url("/ws"),
@@ -270,7 +278,6 @@ func mempool(rw http.ResponseWriter, r *http.Request) {
 func transaction(rw http.ResponseWriter, r *http.Request) {
 	var payload addTxPayload
 	utils.HandleErr(json.NewDecoder(r.Body).Decode(&payload))
-	fmt.Println(payload.Privkey)
 	tx, err := blockchain.Mempool().AddTx(payload.Privkey, payload.To, payload.Amount)
 	if err != nil {
 		json.NewEncoder(rw).Encode(errorResponse{err.Error()})
