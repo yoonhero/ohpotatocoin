@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 )
 
@@ -51,4 +52,11 @@ func ToJSON(i interface{}) []byte {
 	r, err := json.Marshal(i)
 	HandleErr(err)
 	return r
+}
+
+func AllowConnection(w http.ResponseWriter) {
+	//Allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }

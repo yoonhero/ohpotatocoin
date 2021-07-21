@@ -231,6 +231,7 @@ func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
 	// make a type of http.Handler
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		// add content json type
+		utils.AllowConnection(rw)
 		rw.Header().Add("Content-Type", "application/json")
 		next.ServeHTTP(rw, r)
 	})
