@@ -14,6 +14,7 @@ const (
 	dataBucket   = "data"
 	blocksBucket = "blocks"
 	checkpoint   = "checkpoint"
+	blockChainDb = "blockchain.db"
 )
 
 // bolt.DB pointer
@@ -30,7 +31,7 @@ func DB() *bolt.DB {
 	// if db var is nil
 	if db == nil {
 		// init db
-		dbPointer, err := bolt.Open(getDbName(), 0600, nil)
+		dbPointer, err := bolt.Open(blockChainDb, 0600, nil)
 		db = dbPointer
 		utils.HandleErr(err)
 

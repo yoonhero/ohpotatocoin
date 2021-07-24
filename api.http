@@ -44,3 +44,33 @@ POST http://localhost:3000/peers
 }
 ### 
 http://localhost:4000/peers
+
+###
+https://ohpotatocoin.herokuapp.com/blocks
+
+### 
+POST https://ohpotatocoin.herokuapp.com/blocks 
+
+{
+  "from": "d6106e193c7c1809ba0569d11e1f9ddb7a37d35ef79b4aa9157a795d303c26aadf1fc639755057ecee2fd64ed8af3673cfdafe2239ade7a95dfd581271fcea80"
+}
+
+###
+https://ohpotatocoin.herokuapp.com/balance/d6106e193c7c1809ba0569d11e1f9ddb7a37d35ef79b4aa9157a795d303c26aadf1fc639755057ecee2fd64ed8af3673cfdafe2239ade7a95dfd581271fcea80
+
+### 
+POST http://ohpotatocoin.herokuapp.com/transactions
+
+{
+  "privkey":"30770201010420624d41a761e520a1c070a7f19c970a767d44af10614af5e23923a961be3de3cca00a06082a8648ce3d030107a14403420004d6106e193c7c1809ba0569d11e1f9ddb7a37d35ef79b4aa9157a795d303c26aadf1fc639755057ecee2fd64ed8af3673cfdafe2239ade7a95dfd581271fcea80",
+  "to":"cf8d1e7a57b37636dc450960be292f32c249972de6d9a53e05c6bdb08478de27fdfa10b7246e4d24419cd6868e1a8f7bcbefa73c8dd360253e62b70021d7cdd3",
+  "amount":10
+}
+
+###
+###
+POST http://localhost:4000/wallet
+
+{
+"key":"30770201010420624d41a761e520a1c070a7f19c970a767d44af10614af5e23923a961be3de3cca00a06082a8648ce3d030107a14403420004d6106e193c7c1809ba0569d11e1f9ddb7a37d35ef79b4aa9157a795d303c26aadf1fc639755057ecee2fd64ed8af3673cfdafe2239ade7a95dfd581271fcea80"
+}
