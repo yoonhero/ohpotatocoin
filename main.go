@@ -1,14 +1,26 @@
 package main
 
 import (
+	"log"
+	"os"
+	"strconv"
+
 	"github.com/yoonhero/ohpotatocoin/db"
 	"github.com/yoonhero/ohpotatocoin/rest"
+	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
 func main() {
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
 	// close db to protect db file data
 	defer db.Close()
 	// rest or html server start
 	// cli.Start()
-	rest.Start(4000)
+	sv, err := strconv.Atoi(port)
+	utils.HandleErr(err)
+	rest.Start(sv)
 }
