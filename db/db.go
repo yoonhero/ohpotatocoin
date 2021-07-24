@@ -20,7 +20,8 @@ const (
 var db *bolt.DB
 
 func getDbName() string {
-	port := os.Args[2][6:]
+	// port := os.Args[2][6:]
+	port := os.Getenv("PORT")
 	return fmt.Sprintf("%s_%s.db", dbName, port)
 }
 
