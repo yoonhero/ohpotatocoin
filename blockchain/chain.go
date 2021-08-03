@@ -6,7 +6,6 @@ package blockchain
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"sync"
 
@@ -84,15 +83,16 @@ func Blocks(b *blockchain) []*Block {
 // get the latest 6 blocks
 func LatestBlock(b *blockchain, rw http.ResponseWriter) {
 	var blocks []*Block
-	for _, v := range Blocks(b) {
-		h := fmt.Sprintf("%s", v.Hash[0:7]) + "..."
-		v.Hash = h
-		if len(v.PrevHash) > 7 {
-			ph := fmt.Sprintf("%s", v.PrevHash[0:7]) + "..."
-			v.PrevHash = ph
-		}
-		blocks = append(blocks, v)
-	}
+	// for _, v := range Blocks(b) {
+	// 	h := fmt.Sprintf("%s", v.Hash[0:7]) + "..."
+	// 	v.Hash = h
+	// 	if len(v.PrevHash) > 7 {
+	// 		ph := fmt.Sprintf("%s", v.PrevHash[0:7]) + "..."
+	// 		v.PrevHash = ph
+	// 	}
+	// 	blocks = append(blocks, v)
+	// }
+	blocks = Blocks(b)
 	if len(blocks) > 6 {
 		blocks = blocks[0:6]
 	}
@@ -147,6 +147,24 @@ func GetLatestTransactions(b *blockchain, rw http.ResponseWriter) {
 		txs = txs[0:6]
 	}
 	utils.HandleErr(json.NewEncoder(rw).Encode(txs))
+}
+
+func Transactions(b *blockchain, rw http.ResponseWriter) {
+	txs := Txs(b)
+	// if len(txs) > 6 {
+	// 	txs = txs[0:6]
+	// }
+	utils.HandleErr(json.NewEncoder(rw).Encode(txs))
+}
+
+func FindTransactions(b *blockchain, rw http.ResponseWriter, params string) {
+	for _, tx := range Txs(b) {
+		if tx.ID == params {
+			utils.HandleErr(json.NewEncoder(rw).Encode(tx))
+			return
+		}
+	}
+	return
 }
 
 // find specific transaction

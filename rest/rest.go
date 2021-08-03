@@ -277,15 +277,28 @@ func mempool(rw http.ResponseWriter, r *http.Request) {
 }
 
 func transaction(rw http.ResponseWriter, r *http.Request) {
-	var payload addTxPayload
-	utils.HandleErr(json.NewDecoder(r.Body).Decode(&payload))
-	tx, err := blockchain.Mempool().AddTx(payload.Privkey, payload.To, payload.Amount)
-	if err != nil {
-		json.NewEncoder(rw).Encode(errorResponse{err.Error()})
-		return
+	switch r.Method {
+	case "POST":
+		var payload addTxPayload
+		utils.HandleErr(json.NewDecoder(r.Body).Decode(&payload))
+
+		tx, err := blockchain.Mempool().AddTx(payload.Privkey, payload.To, payload.Amount)
+		if err != nil {
+			json.NewEncoder(rw).Encode(errorResponse{err.Error()})
+			return
+		}
+		p2p.BroadcastNewTx(tx)
+		rw.WriteHeader(http.StatusCreated)
+	case "GET":
+		blockchain.Transactions(blockchain.Blockchain(), rw)
 	}
-	p2p.BroadcastNewTx(tx)
-	rw.WriteHeader(http.StatusCreated)
+
+}
+
+func findTx(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	hash := vars["hash"]
+	blockchain.FindTransactions(blockchain.Blockchain(), rw, hash)
 }
 
 func myWallet(rw http.ResponseWriter, r *http.Request) {
@@ -336,7 +349,8 @@ func Start(aPort int) {
 	router.HandleFunc("/wallet", myWallet).Methods("POST")
 	router.HandleFunc("/createkey", createKey).Methods("GET")
 	router.HandleFunc("/ws", p2p.Upgrade).Methods("GET")
-	router.HandleFunc("/transactions", transaction).Methods("POST")
+	router.HandleFunc("/transactions", transaction).Methods("POST", "GET")
+	router.HandleFunc("/transaction/{hash:[a-f0-9]+}", findTx).Methods("GET")
 	router.HandleFunc("/peers", peers).Methods("GET", "POST")
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
