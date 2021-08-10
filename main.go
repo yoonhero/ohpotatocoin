@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"strconv"
 
@@ -11,12 +10,7 @@ import (
 )
 
 func main() {
-	os.Setenv("PORT", "4000")
 	port := os.Getenv("PORT")
-
-	if port == "" {
-		log.Fatal("$PORT must be set")
-	}
 	// close db to protect db file data
 	defer db.Close()
 	// rest or html server start
