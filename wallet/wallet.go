@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
-	"os"
 
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
@@ -49,13 +48,13 @@ func CreatePrivKey() *ecdsa.PrivateKey {
 // }
 
 // parse the key
-func restoreKey() (key *ecdsa.PrivateKey) {
-	keyAsBytes, err := os.ReadFile(fileName)
-	utils.HandleErr(err)
-	key, err = x509.ParseECPrivateKey(keyAsBytes)
-	utils.HandleErr(err)
-	return
-}
+// func restoreKey() (key *ecdsa.PrivateKey) {
+// 	keyAsBytes, err := os.ReadFile(fileName)
+// 	utils.HandleErr(err)
+// 	key, err = x509.ParseECPrivateKey(keyAsBytes)
+// 	utils.HandleErr(err)
+// 	return
+// }
 
 // bytes to hex decimal
 func encodeBigInts(a, b []byte) string {
