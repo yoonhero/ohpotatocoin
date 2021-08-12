@@ -67,6 +67,14 @@ func aFromK(key *ecdsa.PrivateKey) string {
 	return encodeBigInts(key.X.Bytes(), key.Y.Bytes())
 }
 
+func WalletSign(payload string, w *wallet) string {
+	payloadAsB, err := hex.DecodeString(payload)
+	utils.HandleErr(err)
+	r, s, err := ecdsa.Sign(rand.Reader, w.privateKey, payloadAsB)
+	utils.HandleErr(err)
+	return encodeBigInts(r.Bytes(), s.Bytes())
+}
+
 // sign the signature
 func Sign(payload string, keyAsBytes []byte) string {
 	privkey, err := x509.ParseECPrivateKey(keyAsBytes)
