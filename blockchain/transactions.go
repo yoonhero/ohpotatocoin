@@ -85,7 +85,7 @@ func validate(tx *Tx) bool {
 
 		// validate the private key and public key
 		address := prevTx.TxOuts[txIn.Index].Address
-		valid = wallet.Verity(txIn.Signature, tx.ID, address)
+		valid = wallet.Verify(txIn.Signature, tx.ID, address)
 
 		if !valid {
 			break

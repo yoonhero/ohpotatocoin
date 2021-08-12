@@ -108,8 +108,8 @@ func restoreBigInts(payload string) (*big.Int, *big.Int, error) {
 	return &bigA, &bigB, nil
 }
 
-// verity the signature
-func Verity(signature, payload, address string) bool {
+// Verify the signature
+func Verify(signature, payload, address string) bool {
 	r, s, err := restoreBigInts(signature)
 	utils.HandleErr(err)
 	x, y, err := restoreBigInts(address)
@@ -126,7 +126,7 @@ func Verity(signature, payload, address string) bool {
 	payloadBytes, err := hex.DecodeString(payload)
 	utils.HandleErr(err)
 
-	// verity public key and payload and address
+	// Verify public key and payload and address
 	ok := ecdsa.Verify(&publicKey, payloadBytes, r, s)
 	return ok
 }
