@@ -107,7 +107,6 @@ func TestFindTx(t *testing.T) {
 			t.Error("Tx should be not found.")
 		}
 	})
-
 	t.Run("Tx should be found", func(t *testing.T) {
 		dbStorage = fakeDB{
 			fakeFindBlock: func() []byte {
