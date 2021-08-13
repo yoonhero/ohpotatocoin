@@ -1,6 +1,9 @@
 package main
 
-import "github.com/yoonhero/ohpotatocoin/db"
+import (
+	"github.com/yoonhero/ohpotatocoin/cli"
+	"github.com/yoonhero/ohpotatocoin/db"
+)
 
 func main() {
 	// port := os.Getenv("PORT")
@@ -11,5 +14,9 @@ func main() {
 	// sv, err := strconv.Atoi(port)
 	// utils.HandleErr(err)
 	// rest.Start(sv)
-	db.Start()
+	// db.Start()
+
+	defer db.Close()
+	db.InitDB()
+	cli.Start()
 }

@@ -30,10 +30,11 @@ type blockchain struct {
 }
 
 type storage interface {
-	findBlock(hash string) []byte
-	saveBlock(hash string, data []byte)
-	saveChain(data []byte)
-	loadChain() []byte
+	FindBlock(hash string) []byte
+	LoadChain() []byte
+	SaveBlock(hash string, data []byte)
+	SaveChain(data []byte)
+	DeleteAllBlocks()
 }
 
 // variable blockchain pointers
@@ -42,7 +43,7 @@ var b *blockchain
 // variable struct that play func only one time
 var once sync.Once
 
-var dbStorage storage
+var dbStorage storage = db.DB{}
 
 func (b *blockchain) restore(data []byte) {
 	// decoder := gob.NewDecoder(bytes.NewReader(data))
@@ -111,7 +112,7 @@ func LatestBlock(b *blockchain, rw http.ResponseWriter) {
 // persist the blockchain data
 func persistBlockchain(b *blockchain) {
 	// db.SaveCheckpoint(utils.ToBytes(b))
-	dbStorage.saveChain((utils.ToBytes(b)))
+	dbStorage.SaveChain((utils.ToBytes(b)))
 }
 
 func Blockchain() *blockchain {
@@ -122,7 +123,7 @@ func Blockchain() *blockchain {
 
 		// search for checkpoint on the db
 		// checkpoint := db.Checkpoint()
-		checkpoint := dbStorage.loadChain()
+		checkpoint := dbStorage.LoadChain()
 
 		if checkpoint == nil {
 			// if blockchain don't exist create block
@@ -275,7 +276,7 @@ func (b *blockchain) Replace(newBlocks []*Block) {
 	b.Height = len(newBlocks)
 	b.NewestHash = newBlocks[0].Hash
 	persistBlockchain(b)
-	db.EmptyBlocks()
+	dbStorage.DeleteAllBlocks()
 	for _, block := range newBlocks {
 		persistBlock(block)
 	}
