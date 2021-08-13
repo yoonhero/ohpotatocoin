@@ -1,9 +1,6 @@
 package db
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/yoonhero/ohpotatocoin/utils"
 	bolt "go.etcd.io/bbolt"
 )
@@ -43,11 +40,11 @@ func (DB) DeleteAllBlocks() {
 	emptyBlocks()
 }
 
-func getDbName() string {
-	// port := os.Args[2][6:]
-	port := os.Getenv("PORT")
-	return fmt.Sprintf("%s_%s.db", dbName, port)
-}
+// func getDbName() string {
+// 	// port := os.Args[2][6:]
+// 	port := os.Getenv("PORT")
+// 	return fmt.Sprintf("%s_%s.db", dbName, port)
+// }
 
 // create or load database
 func InitDB() {
