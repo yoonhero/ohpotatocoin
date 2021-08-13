@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yoonhero/ohpotatocoin/db"
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
@@ -26,7 +25,8 @@ type Block struct {
 
 // persist data
 func persistBlock(b *Block) {
-	db.SaveBlock(b.Hash, utils.ToBytes(b))
+	// db.SaveBlock(b.Hash, utils.ToBytes(b))
+	dbStorage.saveBlock(b.Hash, utils.ToBytes(b))
 }
 
 // restore data
@@ -38,7 +38,8 @@ var ErrNotFound = errors.New("Block not Found")
 
 // find block by hash
 func FindBlock(hash string) (*Block, error) {
-	blockBytes := db.Block(hash)
+	// blockBytes := db.Block(hash)
+	blockBytes := dbStorage.findBlock(hash)
 
 	// if that block don't exist
 	if blockBytes == nil {
@@ -79,10 +80,10 @@ func createBlock(prevHash string, height int, diff int, from string) *Block {
 		Nonce:      0,
 	}
 
+	block.Transactions = Mempool().TxToConfirm(from)
+
 	// mining the block
 	block.mine()
-
-	block.Transactions = Mempool().TxToConfirm(from)
 
 	// persist the block
 	persistBlock(block)

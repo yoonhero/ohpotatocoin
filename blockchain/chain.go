@@ -29,11 +29,20 @@ type blockchain struct {
 	m                 sync.Mutex
 }
 
+type storage interface {
+	findBlock(hash string) []byte
+	saveBlock(hash string, data []byte)
+	saveChain(data []byte)
+	loadChain() []byte
+}
+
 // variable blockchain pointers
 var b *blockchain
 
 // variable struct that play func only one time
 var once sync.Once
+
+var dbStorage storage
 
 func (b *blockchain) restore(data []byte) {
 	// decoder := gob.NewDecoder(bytes.NewReader(data))
@@ -101,7 +110,8 @@ func LatestBlock(b *blockchain, rw http.ResponseWriter) {
 
 // persist the blockchain data
 func persistBlockchain(b *blockchain) {
-	db.SaveCheckpoint(utils.ToBytes(b))
+	// db.SaveCheckpoint(utils.ToBytes(b))
+	dbStorage.saveChain((utils.ToBytes(b)))
 }
 
 func Blockchain() *blockchain {
@@ -111,7 +121,8 @@ func Blockchain() *blockchain {
 		b = &blockchain{Height: 0}
 
 		// search for checkpoint on the db
-		checkpoint := db.Checkpoint()
+		// checkpoint := db.Checkpoint()
+		checkpoint := dbStorage.loadChain()
 
 		if checkpoint == nil {
 			// if blockchain don't exist create block
