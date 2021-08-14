@@ -79,8 +79,7 @@ func InitPostgresDB() {
 // save block data
 func saveBlockInSQL(hash string, data []byte) {
 	// update database
-	insertStmt := fmt.Sprintf("INSERT INTO Blocks(Hash, Data) values($1, $2)", hash, data)
-	_, err := sqlDB.Exec(insertStmt)
+	_, err := sqlDB.Exec("INSERT INTO Blocks(Hash, Data) values($1, $2)", hash, data)
 	utils.HandleErr(err)
 }
 
@@ -97,9 +96,8 @@ func emptyChainTable() {
 // save chain
 func saveChainInSQL(data []byte) {
 	emptyChainTable()
-	insertCommand := fmt.Sprintf("INSERT INTO Checkpoint(Data) values(%v)", data)
 
-	_, err := sqlDB.Exec(insertCommand)
+	_, err := sqlDB.Exec("INSERT INTO Checkpoint(Data) values($1)", data)
 	utils.HandleErr(err)
 }
 
@@ -121,7 +119,7 @@ func loadChainInSQL() []byte {
 func findBlockInSQL(hash string) []byte {
 	var data []byte
 
-	err := sqlDB.QueryRow(fmt.Sprintf("SELECT Data FROM Blocks WHERE Hash = %s", hash)).Scan(&data)
+	err := sqlDB.QueryRow("SELECT Data FROM Blocks WHERE Hash = $1", hash).Scan(&data)
 	utils.HandleErr(err)
 
 	return data
