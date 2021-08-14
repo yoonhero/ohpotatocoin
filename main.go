@@ -1,22 +1,23 @@
 package main
 
 import (
-	"github.com/yoonhero/ohpotatocoin/cli"
+	"os"
+	"strconv"
+
 	"github.com/yoonhero/ohpotatocoin/db"
+	"github.com/yoonhero/ohpotatocoin/rest"
+	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
 func main() {
-	// port := os.Getenv("PORT")
-	// // close db to protect db file data
-	// defer db.Close()
-	// // rest or html server start
-	// // cli.Start()
-	// sv, err := strconv.Atoi(port)
-	// utils.HandleErr(err)
-	// rest.Start(sv)
-	// db.Start()
+	port := os.Getenv("PORT")
+	// close db to protect db file data
+	defer db.CloseSqlDB()
+	db.InitPostgresDB()
 
-	defer db.Close()
-	db.InitDB()
-	cli.Start()
+	sv, err := strconv.Atoi(port)
+	utils.HandleErr(err)
+	rest.Start(sv)
+	// defer db.Close()
+	// db.InitDB()
 }

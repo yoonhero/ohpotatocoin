@@ -1,7 +1,6 @@
 // persistence of block
 // connected to DB to save data
 // using bolt DB (bitcoin levelDB)
-
 package blockchain
 
 import (
