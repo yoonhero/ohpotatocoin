@@ -37,41 +37,20 @@ func dsn() string {
 		host, port, user, password, dbname)
 }
 
-func InsertData() {
-	defer CloseSqlDB()
-	insertStmt := `INSERT INTO Students(Name, Roll) values('John', 1)`
-	_, e := sqlDB.Exec(insertStmt)
-	utils.HandleErr(e)
-}
-
-func LoadData() {
-	defer CloseSqlDB()
-
-	rows, err := sqlDB.Query(`SELECT Name, Roll FROM Students`)
-	utils.HandleErr(err)
-
-	defer rows.Close()
-	for rows.Next() {
-		var name string
-		var roll int
-
-		err = rows.Scan(&name, &roll)
-		utils.HandleErr(err)
-
-		fmt.Println(name, roll)
-	}
-
-}
-
-func createTable() {
-	// blocks table and data table
-	stmt, err := sqlDB.Prepare("CREATE TABLE Students (Name varchar(111) NOT NULL, Roll int)")
+func createCheckpointTable() {
+	stmt, err := sqlDB.Prepare("CREATE TABLE IF NOT EXISTS Checkpoint (Data bytea NOT NULL)")
 	utils.HandleErr(err)
 
 	_, err = stmt.Exec()
 	utils.HandleErr(err)
+}
 
-	fmt.Println("Table created successfully..")
+func createBlocksTable() {
+	stmt, err := sqlDB.Prepare("CREATE TABLE IF NOT EXISTS Blocks (Hash varchar(111) NOT NULL, Data bytea NOT NULL)")
+	utils.HandleErr(err)
+
+	_, err = stmt.Exec()
+	utils.HandleErr(err)
 }
 
 func CloseSqlDB() {
@@ -92,29 +71,67 @@ func InitPostgresDB() {
 
 		sqlDB = db
 
-		createTable()
-
+		createBlocksTable()
+		createCheckpointTable()
 	}
 }
 
 // save block data
 func saveBlockInSQL(hash string, data []byte) {
 	// update database
-	defer CloseSqlDB()
-	insertStmt := fmt.Sprintf("INSERT INTO Blocks(Hash, Data) values(%s, %x)", hash, data)
+	insertStmt := fmt.Sprintf("INSERT INTO Blocks(Hash, Data) values($1, $2)", hash, data)
 	_, err := sqlDB.Exec(insertStmt)
 	utils.HandleErr(err)
 }
 
 // empty chain table
 func emptyChainTable() {
-	defer CloseSqlDB()
+	stmt, err := sqlDB.Prepare("DROP TABLE Checkpoint")
+	utils.HandleErr(err)
+
+	_, err = stmt.Exec()
+	utils.HandleErr(err)
+	createCheckpointTable()
 }
 
 // save chain
 func saveChainInSQL(data []byte) {
-	defer CloseSqlDB()
+	emptyChainTable()
 	insertCommand := fmt.Sprintf("INSERT INTO Checkpoint(Data) values(%v)", data)
+
 	_, err := sqlDB.Exec(insertCommand)
 	utils.HandleErr(err)
+}
+
+func loadChainInSQL() []byte {
+	var data []byte
+
+	rows, err := sqlDB.Query("SELECT Data FROM Checkpoint")
+	utils.HandleErr(err)
+
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&data)
+		utils.HandleErr(err)
+	}
+
+	return data
+}
+
+func findBlockInSQL(hash string) []byte {
+	var data []byte
+
+	err := sqlDB.QueryRow(fmt.Sprintf("SELECT Data FROM Blocks WHERE Hash = %s", hash)).Scan(&data)
+	utils.HandleErr(err)
+
+	return data
+}
+
+func emptyBlocksInSQL() {
+	stmt, err := sqlDB.Prepare("DROP TABLE Blocks")
+	utils.HandleErr(err)
+
+	_, err = stmt.Exec()
+	utils.HandleErr(err)
+	createBlocksTable()
 }

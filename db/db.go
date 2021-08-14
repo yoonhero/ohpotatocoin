@@ -21,23 +21,23 @@ type DB struct {
 }
 
 func (DB) FindBlock(hash string) []byte {
-	return findBlock(hash)
+	return findBlockInSQL(hash)
 }
 
 func (DB) LoadChain() []byte {
-	return loadChain()
+	return loadChainInSQL()
 }
 
 func (DB) SaveBlock(hash string, data []byte) {
-	saveBlock(hash, data)
+	saveBlockInSQL(hash, data)
 }
 
 func (DB) SaveChain(data []byte) {
-	saveChain(data)
+	saveChainInSQL(data)
 }
 
 func (DB) DeleteAllBlocks() {
-	emptyBlocks()
+	emptyBlocksInSQL()
 }
 
 // func getDbName() string {
