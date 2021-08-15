@@ -6,33 +6,24 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "randompassword"
-	dbname   = "go_project"
+var (
+	host     = os.Getenv("DATABASE_HOST")
+	port     = os.Getenv("DATABASE_PORT")
+	user     = os.Getenv("DATABASE_USER")
+	password = os.Getenv("DATABASE_PASSWORD")
+	dbname   = os.Getenv("DATABASE")
 )
 
 var sqlDB *sql.DB
 
 func dsn() string {
-	databaseURL := os.Getenv("DATABASE_URL")
-	if databaseURL != "" {
-		fmt.Println("yesss")
-		splitedURL := strings.Split(databaseURL, "/")
-		sURL := strings.Split(splitedURL[2], ":")
-		ssURL := strings.Split(sURL[1], "@")
-		return fmt.Sprintf("host=%s port=%s user=%s "+"password=%s dbname=%s sslmode=disable", ssURL[len(ssURL)-1], sURL[len(sURL)-1], sURL[0], ssURL[0], splitedURL[len(splitedURL)-1])
-	}
-	return fmt.Sprintf("host=%s port=%d user=%s "+
+	return fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 }
