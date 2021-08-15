@@ -197,6 +197,9 @@ func recalculateDifficulty(b *blockchain) int {
 	lastRecalculatedBlock := allBlocks[difficultyInterval-1]
 	actualTime := (newestBlock.Timestamp / 60) - (lastRecalculatedBlock.Timestamp / 60)
 	expectedTime := difficultyInterval * blockInterval
+	if b.CurrentDifficulty > 5 {
+		return b.CurrentDifficulty - 1
+	}
 	if actualTime <= (expectedTime - allowedRange) {
 		// if acuaultime < 8 difficulty + 1
 		return b.CurrentDifficulty + 1

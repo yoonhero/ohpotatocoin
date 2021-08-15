@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	minerReward int = 50
+	minerReward int = 1
 )
 
 // not confirmed transactions list
