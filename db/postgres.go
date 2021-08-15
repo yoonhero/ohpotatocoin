@@ -1,29 +1,30 @@
 package db
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"log"
-	"time"
+	"os"
 
 	_ "github.com/lib/pq"
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
 
-var (
-	host     = "ec2-18-214-208-89.compute-1.amazonaws.com"
-	port     = 5434
+const (
+	host     = "localhost"
+	port     = 5432
 	user     = "postgres"
-	password = "cf035f3144d8e022e61f29cfeb0ea198344f886fd18763143aab0df0d2cd099d"
-	dbname   = "d7nafmdveejv65"
+	password = "randompassword"
+	dbname   = "go_project"
 )
 
 var sqlDB *sql.DB
 
 func dsn() string {
-	// postgres://hwbdgkrceyodzs:cf035f3144d8e022e61f29cfeb0ea198344f886fd18763143aab0df0d2cd099d@ec2-18-214-208-89.compute-1.amazonaws.com:5432/d7nafmdveejv65
-
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL != "" {
+		return databaseURL
+	}
 	return fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
@@ -54,11 +55,9 @@ func InitPostgresDB() {
 		db, err := sql.Open("postgres", dsn())
 		utils.HandleErr(err)
 
-		ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancelfunc()
-
-		err = db.PingContext(ctx)
+		err = db.Ping()
 		utils.HandleErr(err)
+
 		log.Printf("Connected to DB %s successfully\n", dbname)
 
 		sqlDB = db
