@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -13,17 +12,19 @@ import (
 )
 
 var (
-	host     = os.Getenv("DATABASE_HOST")
-	port     = os.Getenv("DATABASE_PORT")
-	user     = os.Getenv("DATABASE_USER")
-	password = os.Getenv("DATABASE_PASSWORD")
-	dbname   = os.Getenv("DATABASE")
+	host     = "ec2-18-214-208-89.compute-1.amazonaws.com"
+	port     = 5434
+	user     = "postgres"
+	password = "cf035f3144d8e022e61f29cfeb0ea198344f886fd18763143aab0df0d2cd099d"
+	dbname   = "d7nafmdveejv65"
 )
 
 var sqlDB *sql.DB
 
 func dsn() string {
-	return fmt.Sprintf("host=%s port=%s user=%s "+
+	// postgres://hwbdgkrceyodzs:cf035f3144d8e022e61f29cfeb0ea198344f886fd18763143aab0df0d2cd099d@ec2-18-214-208-89.compute-1.amazonaws.com:5432/d7nafmdveejv65
+
+	return fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 }
