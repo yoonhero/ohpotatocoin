@@ -6,14 +6,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
 	"github.com/yoonhero/ohpotatocoin/utils"
 )
-
-var DATABASE_URL string = "postgresql://yoonseonghyeon:randompassword@localhost:5432/instaclone?schema=public"
 
 const (
 	host     = "localhost"
@@ -25,12 +23,14 @@ const (
 
 var sqlDB *sql.DB
 
-var once sync.Once
-
 func dsn() string {
-	dataBase := os.Getenv("DATABASE_URL")
-	if dataBase != "" {
-		return dataBase
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL != "" {
+		fmt.Println("yesss")
+		splitedURL := strings.Split(databaseURL, "/")
+		sURL := strings.Split(splitedURL[2], ":")
+		ssURL := strings.Split(sURL[1], "@")
+		return fmt.Sprintf("host=%s port=%s user=%s "+"password=%s dbname=%s sslmode=disable", ssURL[len(ssURL)-1], sURL[len(sURL)-1], sURL[0], ssURL[0], splitedURL[len(splitedURL)-1])
 	}
 	return fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
