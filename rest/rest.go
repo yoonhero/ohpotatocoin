@@ -86,6 +86,12 @@ type createKeyAddressPayload struct {
 	Key     string `json:"key"`
 }
 
+type InfoMining struct {
+	Block      *blockchain.Block `json:"block"`
+	Hash       string            `json:"hash"`
+	Difficulty int               `json:"difficulty"`
+}
+
 // when url is "/"
 func documentation(rw http.ResponseWriter, r *http.Request) {
 
@@ -192,6 +198,20 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 		// send a 201 sign
 		rw.WriteHeader(http.StatusCreated)
 	}
+
+}
+
+func mining(rw http.ResponseWriter, r *http.Request) {
+	var addBlockBody addBlockBody
+	json.NewDecoder(r.Body).Decode(&addBlockBody)
+
+	block, hash := blockchain.Blockchain().SendInfoOfMining(addBlockBody.From)
+	fmt.Println(utils.Hash("JnsgMDAwMDAwZGQwZTNkOGYxNDM1N2QyZTIyMTQ4ZGJlM2U3ZjAxMDhkMDFkYmVlNTM0ZTgyOGMxNTU2Njg4OTM4ZiAzMiA2IDAgMCBbMHhjMDAwMjhjYTAwXX0"))
+	json.NewEncoder(rw).Encode(InfoMining{
+		Block:      block,
+		Hash:       hash,
+		Difficulty: block.Difficulty,
+	})
 
 }
 
@@ -342,6 +362,7 @@ func Start(aPort int) {
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
 	// get parameter using mux
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET")
+	router.HandleFunc("/mining", mining).Methods("POST")
 	router.HandleFunc("/latestblocks", latestblocks).Methods("GET")
 	router.HandleFunc("/latesttransactions", latesttransactions).Methods("GET")
 	router.HandleFunc("/balance/{address}", balance).Methods("GET")

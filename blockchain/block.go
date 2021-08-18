@@ -90,3 +90,17 @@ func createBlock(prevHash string, height int, diff int, from string) *Block {
 
 	return block
 }
+
+// user mining function
+func userMining(prevHash string, height int, diff int, from string) (*Block, string) {
+	block := &Block{
+		Hash:       "",
+		PrevHash:   prevHash,
+		Height:     height,
+		Difficulty: diff,
+		Nonce:      0,
+	}
+
+	block.Transactions = Mempool().TxToConfirm(from)
+	return block, utils.Hash(block)
+}

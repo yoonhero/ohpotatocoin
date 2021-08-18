@@ -67,6 +67,11 @@ func (b *blockchain) AddBlock(from string) *Block {
 	return block
 }
 
+func (b *blockchain) SendInfoOfMining(from string) (*Block, string) {
+	block, hash := userMining(b.NewestHash, b.Height+1, getDifficulty(b), from)
+	return block, hash
+}
+
 // all blocks
 func Blocks(b *blockchain) []*Block {
 	b.m.Lock()
@@ -218,7 +223,11 @@ func getDifficulty(b *blockchain) int {
 		// recalculate the difficulty
 		return recalculateDifficulty(b)
 	} else {
-		return b.CurrentDifficulty
+		if b.CurrentDifficulty <= 5 {
+			return b.CurrentDifficulty
+		} else {
+			return 5
+		}
 	}
 }
 
